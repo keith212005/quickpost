@@ -1,0 +1,21 @@
+'use client';
+
+import Link from 'next/link';
+
+export default function Sidebar() {
+  return (
+    <aside className="h-screen w-60  px-4 py-6 border-r hidden md:block">
+      <nav className="flex flex-col space-y-4">
+        <Link href="/dashboard" className="hover:text-blue-500">
+          Home
+        </Link>
+        <Link href="/profile" className="hover:text-blue-500">
+          My Posts
+        </Link>
+        <Link href="/settings" className="hover:text-blue-500">
+          Settings
+        </Link>
+      </nav>
+    </aside>
+  );
+}
