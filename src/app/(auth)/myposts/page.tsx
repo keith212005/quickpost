@@ -11,6 +11,9 @@ export default async function MyPosts() {
     where: {
       authorId: session?.user?.id,
     },
+    include: {
+      likes: true,
+    },
     orderBy: {
       createdAt: 'desc',
     },
@@ -32,6 +35,10 @@ export default async function MyPosts() {
             title={post.title}
             content={post.content}
             createdAt={post.createdAt.toLocaleString()}
+            likes={post.likes}
+            isLikedByUser={post.likes?.some(
+              (like) => like.userId === post.authorId,
+            )}
           />
         ))
       )}

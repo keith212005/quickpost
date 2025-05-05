@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
-import { LoginSchema, loginSchema } from '@/schemas/authSchemas';
+import { LoginSchema, loginSchema } from '@/lib/validations';
 
 import { Button } from './ui/button';
 import {
@@ -109,16 +109,15 @@ const LoginForm = () => {
           </span>
           <Separator className='flex-1' />
         </div>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className='mb-4'>
-            <Label htmlFor='email' className='mb-1 block'>
-              Email
-            </Label>
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+          <div>
+            <Label htmlFor='email'>Email</Label>
             <Input
               {...register('email')}
               id='email'
               type='email'
               placeholder='you@example.com'
+              className='mt-2'
             />
             {errors['email'] && (
               <Label
@@ -129,15 +128,14 @@ const LoginForm = () => {
               </Label>
             )}
           </div>
-          <div className='mb-4'>
-            <Label htmlFor='password' className='mb-1 block'>
-              Password
-            </Label>
+          <div>
+            <Label htmlFor='password'>Password</Label>
             <Input
               {...register('password')}
               id='password'
               type='password'
               placeholder='••••••••'
+              className='mt-2'
             />
             {errors['password'] && (
               <Label

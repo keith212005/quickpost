@@ -1,5 +1,5 @@
 import AddOrEditPostForm from '@/components/AddOrEditPostForm';
-import PostCard from '@/components/PostCard';
+import ClientPostFeed from '@/components/ClientPostFeed';
 import { prisma } from '@/lib/db';
 
 export default async function FeedPage() {
@@ -13,29 +13,22 @@ export default async function FeedPage() {
     },
   });
 
+  // convert date to string because Date is not serializable
+  const safePosts = posts.map((post) => ({
+    ...post,
+    createdAt: post.createdAt.toLocaleString(),
+    author: post.author
+      ? { id: post.author.id, name: post.author.name, email: post.author.email }
+      : undefined,
+  }));
+
   return (
     <>
       <div className='sticky top-0 z-10 mx-auto flex w-full items-center justify-evenly border-b bg-white p-4 shadow-sm dark:bg-gray-900'>
         <h1 className='text-2xl font-bold'>Global Feed</h1>
         <AddOrEditPostForm />
       </div>
-      <div className='mx-auto max-w-2xl space-y-4 p-4'>
-        {posts.map((post) => (
-          <PostCard
-            key={post.id}
-            id={post.id}
-            title={post.title}
-            content={post.content}
-            createdAt={post.createdAt.toLocaleString()}
-            author={
-              post.author
-                ? { name: post.author.name, email: post.author.email }
-                : undefined
-            }
-            likes={post.likes}
-          />
-        ))}
-      </div>
+      <ClientPostFeed posts={safePosts} />
     </>
   );
 }
