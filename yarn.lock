@@ -1067,6 +1067,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-primitive@npm:2.1.1":
+  version: 2.1.1
+  resolution: "@radix-ui/react-primitive@npm:2.1.1"
+  dependencies:
+    "@radix-ui/react-slot": 1.2.1
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: e89f8f38d98dd90171a13823f476de73f302cefa787282881f90ff1bc136bcb197ee3d710cc40f23d728b8710732fcb2081ac7a7de7090cf395f47e51f1f7209
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-separator@npm:^1.1.5":
+  version: 1.1.5
+  resolution: "@radix-ui/react-separator@npm:1.1.5"
+  dependencies:
+    "@radix-ui/react-primitive": 2.1.1
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: c5310d6226be22391bf24dd68aba15902c48e8b21aa103bd73f09d3d8c0352340065deb3305af3ed1e5167e8f6d94fa35b35d4c9e86124124cef532220d00795
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-slot@npm:1.2.0, @radix-ui/react-slot@npm:^1.2.0":
   version: 1.2.0
   resolution: "@radix-ui/react-slot@npm:1.2.0"
@@ -1079,6 +1117,21 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 2dd57bfd1ab452df355d17924e0b74173559d3322519dc869930d7ed04331eb2baec9477f127af3029f0fe8f6bcb7425cfdcdd12f169683c813a4d863956ae5c
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-slot@npm:1.2.1":
+  version: 1.2.1
+  resolution: "@radix-ui/react-slot@npm:1.2.1"
+  dependencies:
+    "@radix-ui/react-compose-refs": 1.1.2
+  peerDependencies:
+    "@types/react": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 369719c3c8e66864d0cbfc4834a0fd84c4cf008a7519192d66200a1bd446f24528768b36cf3b921576d54fd3352c6464752d4b2eab96457600b79c00602f9dc5
   languageName: node
   linkType: hard
 
@@ -4627,6 +4680,7 @@ __metadata:
     "@radix-ui/react-alert-dialog": ^1.1.11
     "@radix-ui/react-avatar": ^1.1.7
     "@radix-ui/react-label": ^2.1.4
+    "@radix-ui/react-separator": ^1.1.5
     "@radix-ui/react-slot": ^1.2.0
     "@tailwindcss/postcss": ^4
     "@types/node": ^20
