@@ -45,18 +45,11 @@ export const UsersTableRow = ({
       {visibleColumns[TABLE_COLUMNS[0]] && <TableCell>{user.id}</TableCell>}
       {visibleColumns[TABLE_COLUMNS[1]] && (
         <TableCell>
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              user.isActive
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {user.isActive ? 'Active' : 'Inactive'}
-          </span>
+          <StatusTab user={user} />
         </TableCell>
       )}
-      {visibleColumns[TABLE_COLUMNS[2]] && <TableCell>{user.email}</TableCell>}
+      {visibleColumns[TABLE_COLUMNS[2]] && <TableCell>{user.name}</TableCell>}
+      {visibleColumns[TABLE_COLUMNS[3]] && <TableCell>{user.email}</TableCell>}
       {visibleColumns[TABLE_COLUMNS[3]] && <TableCell>{user.role}</TableCell>}
       {visibleColumns[TABLE_COLUMNS[4]] && (
         <TableCell>{user.isOAuth ? 'Yes' : 'No'}</TableCell>
@@ -84,9 +77,7 @@ export const UsersTableRow = ({
       {visibleColumns[TABLE_COLUMNS[9]] && (
         <TableCell>{user.likes.length}</TableCell>
       )}
-      {visibleColumns[TABLE_COLUMNS[10]] && (
-        <TableCell>{user.likes.length}</TableCell>
-      )}
+
       <TableCell className='text-right'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -129,5 +120,19 @@ export const UsersTableRow = ({
         </DropdownMenu>
       </TableCell>
     </TableRow>
+  );
+};
+
+const StatusTab = ({ user }: { user: UserType }) => {
+  return (
+    <span
+      className={`rounded-full px-3 py-1 text-xs font-semibold ${
+        user.isActive
+          ? 'bg-green-100 text-green-700'
+          : 'bg-red-100 text-red-700'
+      }`}
+    >
+      {user.isActive ? 'Active' : 'Inactive'}
+    </span>
   );
 };

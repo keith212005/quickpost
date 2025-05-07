@@ -1,10 +1,18 @@
-'use client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Activity, FileText, Users } from 'lucide-react';
+
+import { getDashboardStats } from '@/app/actions/getDashboardStats';
+import { DashboardErrorToast } from '@/components/DashboardErrorToast';
+import { StatCard } from '@/components/StatCard';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const AdminDashboard = () => {
+const AdminDashboard = async () => {
+  const { totalPosts, totalUsers, postsThisMonth, activeUsers, error } =
+    await getDashboardStats();
+
   return (
     <div className='bg-background text-foreground min-h-screen px-4 py-6'>
+      <DashboardErrorToast error={error} />
+
       <h1 className='mb-6 text-3xl font-bold'>Dashboard</h1>
 
       <Tabs defaultValue='overview' className='mb-6'>
@@ -16,33 +24,30 @@ const AdminDashboard = () => {
       </Tabs>
 
       <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-4'>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Posts</CardTitle>
-          </CardHeader>
-          <CardContent className='text-2xl font-bold'>1,245</CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Users</CardTitle>
-          </CardHeader>
-          <CardContent className='text-2xl font-bold'>320</CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Posts This Month</CardTitle>
-          </CardHeader>
-          <CardContent className='text-2xl font-bold'>210</CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Active Users</CardTitle>
-          </CardHeader>
-          <CardContent className='text-2xl font-bold'>87</CardContent>
-        </Card>
+        <StatCard
+          title='Total Users'
+          value={totalUsers}
+          icon={Users}
+          variant='default'
+        />
+        <StatCard
+          title='Posts This Week'
+          value={totalPosts}
+          icon={FileText}
+          variant='success'
+        />
+        <StatCard
+          title='Posts This Month'
+          value={postsThisMonth}
+          icon={FileText}
+          variant='danger'
+        />
+        <StatCard
+          title='Active Users'
+          value={activeUsers}
+          icon={Activity}
+          variant='info'
+        />
       </div>
     </div>
   );
