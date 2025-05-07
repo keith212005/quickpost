@@ -1,5 +1,3 @@
-import './globals.css';
-
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { getServerSession } from 'next-auth';
@@ -7,6 +5,9 @@ import { getServerSession } from 'next-auth';
 import Navbar from '@/components/layout/NavBar';
 import SessionProvider from '@/components/SessionProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { Toaster } from '@/components/ui/sonner';
+
+import './globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -41,10 +42,13 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider session={session}>
-            <Navbar />
+            <div className='bg-background sticky top-0 z-50'>
+              <Navbar />
+            </div>
             <div className='flex'>
               <main className='flex-1'>{children}</main>
             </div>
+            <Toaster />
           </SessionProvider>
         </ThemeProvider>
       </body>

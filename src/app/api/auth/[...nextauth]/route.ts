@@ -50,6 +50,7 @@ export const authOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
+          isActive: user.isActive,
         };
       },
     }),
@@ -72,20 +73,26 @@ export const authOptions = {
           where: { email: user.email },
         });
 
+        if (existingUser) {
+          (user as AdapterUser).role = existingUser.role; // 👈 add this
+        }
+
         if (!existingUser) {
           const rawPassword = randomBytes(12).toString('base64');
           const password = await bcrypt.hash(rawPassword, 10);
-          await prisma.user.create({
+          const newUser = await prisma.user.create({
             data: {
               id: user.id,
               email: user.email,
               name: user.name ?? 'GitHub User',
               isOAuth: true,
+              role: 'user',
               password,
               lastLogin: new Date(),
               emailVerified: new Date(),
             },
           });
+          (user as AdapterUser).role = newUser.role;
         }
 
         return true;
@@ -94,10 +101,41 @@ export const authOptions = {
         return false;
       }
     },
+
+    async jwt({ token, user }: { token: JWT; user: AdapterUser | User }) {
+      console.log('jwt>>>>>>>', { token, user });
+
+      // If it's a new login (user is passed)
+      if (user) {
+        token.role = user.role;
+        token.sub = user.id;
+
+        // Always fetch latest isActive status
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { isActive: true },
+        });
+
+        token.isActive = dbUser?.isActive ?? true;
+      }
+
+      return token;
+    },
+
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
         (session.user as AdapterUser).id = token.sub as string;
+        // Add role if available
+        const user = await prisma.user.findUnique({
+          where: { id: token.sub as string },
+          select: { role: true },
+        });
+        if (user) {
+          (session.user as AdapterUser).role = user.role;
+          (session.user as AdapterUser).isActive = token.isActive as boolean;
+        }
       }
+      console.log('session>>>>>>>', session);
       return session;
     },
   },

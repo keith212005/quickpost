@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 
+import { createUser } from '@/app/actions/createUser';
 import { RegisterSchema, registerSchema } from '@/lib/validations';
 
 import { Button } from './ui/button';
@@ -42,23 +43,14 @@ const SignupForm = () => {
   }, [status, router]);
 
   const onSubmit = async (data: RegisterSchema) => {
-    try {
-      const res = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+    const res = await createUser(data.name, data.email, data.password);
+
+    if (!res || res.error) {
+      setError('root', { message: 'Registration failed. Please try again.' });
+    } else {
+      setError('root', {
+        message: 'Registration successful. Please go to login',
       });
-
-      console.log(res);
-
-      if (!res.ok) setError('root', { message: 'Registration failed' });
-      if (res.ok)
-        setError('root', {
-          message: 'Registration successful. Please go to login',
-        });
-    } catch (e) {
-      console.error(e);
-      setError('root', { message: 'Something went wrong' });
     }
   };
 

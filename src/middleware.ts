@@ -3,37 +3,56 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const { pathname } = req.nextUrl;
 
-  const protectedPaths = ['/feed', '/myposts', '/profile', '/settings'];
-  const authPages = ['/login', '/register'];
-
-  const pathname = req.nextUrl.pathname;
-
-  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
-  const isAuthPage = authPages.some((path) => pathname.startsWith(path));
-
-  // 🔐 Unauthenticated trying to access protected page
-  if (isProtected && !token) {
-    const loginUrl = new URL('/login', req.url);
-    return NextResponse.redirect(loginUrl);
+  // 🚫 Skip middleware for public routes early
+  const publicPaths = ['/login', '/register'];
+  if (publicPaths.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
   }
 
-  // ✅ Authenticated user trying to access login or register
-  if (token && isAuthPage) {
-    return NextResponse.redirect(new URL('/feed', req.url));
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+  console.log('token in middleware>>>>', token);
+
+  if (!token) {
+    // Redirect only if the request is not for the login or register page
+    if (!['/login', '/register'].includes(pathname)) {
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+    return NextResponse.next();
+  }
+
+  const userRole = token.role || 'guest';
+  const isActive = token.isActive ?? true; // Default to true if undefined
+
+  // if user is not active, redirect to login page with error message
+  if (!isActive) {
+    const url = req.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set(
+      'error',
+      'Your account is inactive. Please contact support.',
+    );
+    return NextResponse.redirect(url);
+  }
+
+  const isAdminPath = pathname.startsWith('/admin');
+  const isUserPath = pathname.startsWith('/user');
+
+  // ✅ Block user from accessing admin route
+  if (isAdminPath && userRole !== 'admin') {
+    return NextResponse.redirect(new URL('/user/feed', req.url));
+  }
+
+  // ✅ Block admin from accessing user route
+  if (isUserPath && userRole !== 'user') {
+    return NextResponse.redirect(new URL('/admin/dashboard', req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/feed/:path*',
-    '/myposts/:path*',
-    '/profile/:path*',
-    '/settings/:path*',
-    '/login',
-    '/register',
-  ],
+  matcher: ['/admin/:path*', '/user/:path*', '/login', '/register'],
 };

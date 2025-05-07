@@ -1,10 +1,9 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Github, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
 import { LoginSchema, loginSchema } from '@/lib/validations';
@@ -22,9 +21,11 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 
-const LoginForm = () => {
-  const [isGitHubLoading, setIsGitHubLoading] = useState(false);
-  const router = useRouter();
+type LoginFormProps = {
+  errorMessage?: string;
+};
+
+const LoginForm = ({ errorMessage }: LoginFormProps = {}) => {
   const {
     register,
     handleSubmit,
@@ -34,20 +35,29 @@ const LoginForm = () => {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: 'kj@gmail.com', password: '111111' },
   });
+  const [isGitHubLoading, setIsGitHubLoading] = useState(false);
+
+  useEffect(() => {
+    if (errorMessage) {
+      setError('root', { message: errorMessage });
+    }
+  }, [errorMessage, setError]);
 
   const onSubmit = async (data: LoginSchema) => {
-    const res = await signIn('credentials', {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
+    try {
+      const res = await signIn('credentials', {
+        redirect: true,
+        email: data.email,
+        password: data.password,
+        callbackUrl: '/login',
+      });
 
-    console.log(res);
-
-    if (res?.error) {
-      setError('root', { message: res.error });
-    } else {
-      router.replace('/feed');
+      if (res?.error) {
+        setError('root', { message: 'Login failed.' });
+      }
+    } catch (e) {
+      console.error(e);
+      setError('root', { message: 'Something went wrong' });
     }
   };
 
@@ -56,7 +66,7 @@ const LoginForm = () => {
     try {
       const res = await signIn('github', {
         redirect: false,
-        callbackUrl: '/feed',
+        callbackUrl: '/user/feed',
       });
 
       if (res?.error) {
