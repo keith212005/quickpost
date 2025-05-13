@@ -1,16 +1,13 @@
-import { getServerSession } from 'next-auth';
-
+import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import { TPostSchema } from '@/types/dbTablesTypes';
-
-import { authOptions } from '../api/auth/[...nextauth]/route';
 
 export async function getUsersPosts(): Promise<{
   success: boolean;
   data?: TPostSchema[];
   error?: string;
 }> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   try {
     const posts: TPostSchema[] = await prisma.post.findMany({
       where: {

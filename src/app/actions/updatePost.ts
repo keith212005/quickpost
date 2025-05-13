@@ -1,10 +1,7 @@
 'use server';
 
-import { getServerSession } from 'next-auth';
-
+import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
-
-import { authOptions } from '../api/auth/[...nextauth]/route';
 
 type updatePostProps = {
   postId: string;
@@ -13,9 +10,8 @@ type updatePostProps = {
 };
 
 export async function updatePost({ postId, title, content }: updatePostProps) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session) throw new Error('Unauthorized');
-
   try {
     const updatedPost = await prisma.post.update({
       where: { id: postId },

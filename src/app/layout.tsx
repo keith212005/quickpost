@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { getServerSession } from 'next-auth';
+import { SessionProvider } from 'next-auth/react';
 
+import { auth } from '@/auth';
 import Navbar from '@/components/layout/NavBar';
-import SessionProvider from '@/components/SessionProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -29,7 +29,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession();
+  const session = await auth();
+
   return (
     <html lang='en' suppressHydrationWarning>
       <body
@@ -41,7 +42,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SessionProvider session={session}>
+          <SessionProvider session={session ?? null}>
             <div className='bg-background sticky top-0 z-50'>
               <Navbar />
             </div>

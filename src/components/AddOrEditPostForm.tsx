@@ -1,8 +1,8 @@
 'use client';
+import React, { startTransition, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 
 import { createPost } from '@/app/actions/createPost';
 import { updatePost } from '@/app/actions/updatePost';
@@ -10,6 +10,7 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -39,18 +40,30 @@ const AddOrEditPostForm = ({
   const {
     register,
     handleSubmit,
-    reset,
+
     formState: { errors },
   } = useForm<PostSchemaType>({
     resolver: zodResolver(PostSchema),
     defaultValues: { title: title || '', content: content || '' },
   });
 
-  useEffect(() => {
-    if (open) {
-      reset({ title: title || '', content: content || '' });
+  const onSubmit = async (data: PostSchemaType) => {
+    setLoading(true);
+
+    try {
+      if (postId) {
+        await updatePost({ postId, ...data });
+      } else {
+        await createPost(data);
+      }
+      startTransition(() => {
+        setOpen(false);
+        router.refresh();
+      });
+    } finally {
+      setLoading(false);
     }
-  }, [open, title, content, reset]);
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -59,26 +72,19 @@ const AddOrEditPostForm = ({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <form
-          onSubmit={handleSubmit(async (data) => {
-            setLoading(true);
-            try {
-              if (postId) {
-                await updatePost({ postId, ...data });
-              } else {
-                await createPost(data);
-              }
-              setOpen(false);
-              router.refresh();
-            } finally {
-              setLoading(false);
-            }
-          })}
+          key={postId || 'new'}
+          onSubmit={handleSubmit(onSubmit)}
           className='space-y-4'
         >
           <AlertDialogHeader>
             <AlertDialogTitle>
               {postId ? 'Edit Post' : 'Create new Post'}
             </AlertDialogTitle>
+            <AlertDialogDescription>
+              {postId
+                ? 'Update your post title and content.'
+                : 'Write something new to share with others.'}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <Input placeholder='Title' {...register('title')} />
           {errors.title && (

@@ -1,5 +1,5 @@
-import Link2 from 'next/link';
 import React from 'react';
+import Link2 from 'next/link';
 
 type NavLinkProps = {
   href: string;

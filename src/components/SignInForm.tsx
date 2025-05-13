@@ -1,11 +1,12 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Github, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 
+import { authErrorMessages } from '@/constants/constants';
 import { LoginSchema, loginSchema } from '@/lib/validations';
 
 import { Button } from './ui/button';
@@ -21,11 +22,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 
-type LoginFormProps = {
-  errorMessage?: string;
-};
-
-const LoginForm = ({ errorMessage }: LoginFormProps = {}) => {
+export const SignInForm = () => {
   const {
     register,
     handleSubmit,
@@ -37,41 +34,44 @@ const LoginForm = ({ errorMessage }: LoginFormProps = {}) => {
   });
   const [isGitHubLoading, setIsGitHubLoading] = useState(false);
 
-  useEffect(() => {
-    if (errorMessage) {
-      setError('root', { message: errorMessage });
-    }
-  }, [errorMessage, setError]);
-
   const onSubmit = async (data: LoginSchema) => {
     try {
       const res = await signIn('credentials', {
-        redirect: true,
+        redirect: false,
         email: data.email,
         password: data.password,
-        callbackUrl: '/login',
+        callbackUrl: '/user/feed',
       });
+      console.log('Login response >>>>>', res);
 
-      if (res?.error) {
-        setError('root', { message: 'Login failed.' });
+      if (!res) {
+        setError('root', { message: 'Something went wrong during login.' });
+        return;
       }
-    } catch (e) {
-      console.error(e);
-      setError('root', { message: 'Something went wrong' });
+
+      if (res.error) {
+        const errorMessage =
+          authErrorMessages[res?.error as keyof typeof authErrorMessages] ??
+          res?.error ??
+          'Login failed';
+        console.log('Login error111 >>>>>', errorMessage);
+        setError('root', { message: errorMessage });
+        return;
+      }
+
+      if (res.ok && res.url) {
+        window.location.href = res.url;
+      }
+    } catch (error) {
+      console.log('Login errorrrrrrrrrr >>>>>', error);
+      setError('root', { message: 'Something went wrong during login.' });
     }
   };
 
   const handleGitHubSignIn = async () => {
     setIsGitHubLoading(true);
     try {
-      const res = await signIn('github', {
-        redirect: false,
-        callbackUrl: '/user/feed',
-      });
-
-      if (res?.error) {
-        setError('root', { message: 'GitHub sign-in failed.' });
-      }
+      signIn('github', { callbackUrl: '/user/feed' });
     } catch (e) {
       console.error('GitHub sign in error >>>>>', e);
       setError('root', { message: 'Something went wrong with GitHub login.' });
@@ -179,7 +179,7 @@ const LoginForm = ({ errorMessage }: LoginFormProps = {}) => {
       <CardFooter className='flex-col'>
         <div className='w-full text-center text-sm'>
           Don&apos;t have an account?{' '}
-          <Link href='/register'>
+          <Link href='/signup'>
             <Button variant='link' size='sm' asChild>
               <span>Register here</span>
             </Button>
@@ -189,5 +189,3 @@ const LoginForm = ({ errorMessage }: LoginFormProps = {}) => {
     </Card>
   );
 };
-
-export default LoginForm;

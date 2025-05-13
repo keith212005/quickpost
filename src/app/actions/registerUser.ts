@@ -5,12 +5,19 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db';
 import { UserType } from '@/types/types';
 
-export async function createUser(
+export async function registerUser(
   name: string,
   email: string,
   password: string,
 ): Promise<{ user?: Partial<UserType>; error?: string }> {
   try {
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (existingUser) {
+      return { error: 'User already exists with this email.' };
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
@@ -21,7 +28,13 @@ export async function createUser(
         isActive: true,
       },
     });
-    return { user };
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    };
   } catch (error: unknown) {
     console.error('Error creating user:', error);
     return { error: 'Failed to create user. Please try again.' };

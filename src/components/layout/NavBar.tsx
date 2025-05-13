@@ -1,17 +1,18 @@
 'use client';
 
-import { Moon, Sun } from 'lucide-react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 
-import { useThemeToggle } from '@/hooks/useThemeToggle';
-
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { ToggleThemeButton } from '../ToggleThemeButton';
 import NavLink from '../ui/NavLink';
+import { UserAvatar } from '../UserAvatar';
 
 export default function Navbar() {
-  const { mounted, theme, toggleTheme } = useThemeToggle();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  console.log('Session in nav:>>>>>>>>>>>', session, status);
+
+  if (status === 'loading') return null;
 
   return (
     <header className='w-full bg-white shadow-md dark:bg-black'>
@@ -27,30 +28,10 @@ export default function Navbar() {
           <NavLink href='/' label='QuickPost' />
         </div>
         <nav className='flex items-center gap-4'>
-          {!session && <NavLink href='/login' label='Login' />}
+          {!session?.user && <NavLink href='/signin' label='Sign In' />}
+          <ToggleThemeButton />
 
-          <button
-            onClick={toggleTheme}
-            className='ml-4 rounded p-2 transition-colors hover:bg-gray-200 dark:hover:bg-gray-400'
-            aria-label='Toggle Theme'
-          >
-            {mounted ? (
-              theme === 'dark' ? (
-                <Sun className='h-5 w-5 text-white' />
-              ) : (
-                <Moon className='h-5 w-5 text-black' />
-              )
-            ) : (
-              <Moon className='h-5 w-5 text-black' />
-            )}
-          </button>
-
-          {session && (
-            <Avatar>
-              <AvatarImage src={session?.user?.image ?? ''} alt='@shadcn' />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-          )}
+          <UserAvatar />
         </nav>
       </div>
     </header>

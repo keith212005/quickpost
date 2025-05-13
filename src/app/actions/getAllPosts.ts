@@ -1,11 +1,16 @@
+import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
-import { TPostSchema } from '@/types/dbTablesTypes';
 
-export async function getAllPosts(): Promise<{
-  success: boolean;
-  data?: TPostSchema[];
-  error?: string;
-}> {
+export async function getAllPosts() {
+  const session = await auth();
+  console.log('session in getAllPosts:', session);
+  if (!session) {
+    return {
+      data: [],
+      success: false,
+      error: 'Unauthorized',
+    };
+  }
   try {
     const posts = await prisma.post.findMany({
       select: {
@@ -46,6 +51,7 @@ export async function getAllPosts(): Promise<{
     return {
       success: true,
       data: posts,
+      error: undefined,
     };
   } catch (error) {
     console.error('Failed to fetch posts:', error);

@@ -1,23 +1,19 @@
-import { getServerSession } from 'next-auth';
-
+import { auth } from '@/auth';
 import AdminSideBar from '@/components/layout/AdminSideBar';
-import SideBar from '@/components/layout/SideBar';
-
-import { authOptions } from '../api/auth/[...nextauth]/route';
+import Sidebar from '@/components/layout/SideBar';
 
 export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
+  console.log('session in AuthLayout  >>>>>', session?.user);
 
   return (
-    <>
-      <div className='flex'>
-        {session?.user?.role === 'admin' ? <AdminSideBar /> : <SideBar />}
-        <main className='flex-1'>{children}</main>
-      </div>
-    </>
+    <div className='flex'>
+      {session?.user?.role === 'user' ? <Sidebar /> : <AdminSideBar />}
+      <main className='flex-1'>{children}</main>
+    </div>
   );
 }

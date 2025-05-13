@@ -1,13 +1,10 @@
 'use server';
 
-import { getServerSession } from 'next-auth';
-
+import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 
-import { authOptions } from '../api/auth/[...nextauth]/route';
-
 export async function toggleLike(postId: string) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user?.id) {
     throw new Error('Unauthorized');
   }

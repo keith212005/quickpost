@@ -1,7 +1,9 @@
 'use client';
 
 import { Heart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
+import { toggleLike } from '@/app/actions/toggleLike';
 import {
   Card,
   CardContent,
@@ -25,7 +27,7 @@ type PostCardProps = {
   };
   likes?: { id: string }[];
   edit?: boolean;
-  onClickLike?: () => void;
+
   isLikedByUser?: boolean;
 };
 
@@ -37,9 +39,18 @@ export default function PostCard({
   author,
   likes,
   edit,
-  onClickLike,
+
   isLikedByUser,
 }: PostCardProps) {
+  const router = useRouter();
+  const handleToggleLike = async () => {
+    try {
+      await toggleLike(id);
+      router.refresh();
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
   return (
     <Card>
       <CardHeader>
@@ -56,10 +67,10 @@ export default function PostCard({
         {isLikedByUser ? (
           <Heart
             className='h-4 w-4 fill-red-500 text-red-500'
-            onClick={onClickLike}
+            onClick={handleToggleLike}
           />
         ) : (
-          <Heart className='h-4 w-4 text-red-500' onClick={onClickLike} />
+          <Heart className='h-4 w-4 text-red-500' onClick={handleToggleLike} />
         )}
         {likes?.length} like{likes?.length !== 1 && 's'}
         {edit && (

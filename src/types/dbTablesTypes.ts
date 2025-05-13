@@ -5,7 +5,7 @@ export const postSchema = z.object({
   id: z.string(),
   title: z.string(),
   content: z.string(),
-  createdAt: z.string(), // since your original used string instead of Date
+  createdAt: z.date(),
   author: z
     .object({
       id: z.string(),

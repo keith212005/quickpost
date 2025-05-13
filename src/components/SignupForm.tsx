@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 
-import { createUser } from '@/app/actions/createUser';
+import { registerUser } from '@/app/actions/registerUser';
 import { RegisterSchema, registerSchema } from '@/lib/validations';
 
 import { Button } from './ui/button';
@@ -23,7 +23,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 
-const SignupForm = () => {
+export const SignupForm = () => {
   const [isGitHubLoading, setIsGitHubLoading] = useState(false);
   const { status } = useSession();
   const router = useRouter();
@@ -43,7 +43,7 @@ const SignupForm = () => {
   }, [status, router]);
 
   const onSubmit = async (data: RegisterSchema) => {
-    const res = await createUser(data.name, data.email, data.password);
+    const res = await registerUser(data.name, data.email, data.password);
 
     if (!res || res.error) {
       setError('root', { message: 'Registration failed. Please try again.' });
@@ -168,7 +168,7 @@ const SignupForm = () => {
         </form>
       </CardContent>
       <CardFooter className='flex-col gap-4'>
-        <Link href='/login' className='w-full'>
+        <Link href='/signin' className='w-full'>
           <Button
             variant='ghost'
             className='bg-muted text-muted-foreground w-full dark:bg-gray-800 dark:text-white'
@@ -193,5 +193,3 @@ const SignupForm = () => {
     </Card>
   );
 };
-
-export default SignupForm;

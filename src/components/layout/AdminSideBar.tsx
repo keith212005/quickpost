@@ -1,20 +1,12 @@
 'use client';
 
 import { Home, LogOut, MessageSquareText, Settings, User } from 'lucide-react';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 
 import SideBarLink from '../ui/SideBarLink';
 import ThemedIcon from '../ui/ThemedIcon';
 
 export default function AdminSideBar() {
-  const { data: session } = useSession();
-
-  if (!session) {
-    return null;
-  }
-
-  console.log(session);
-
   return (
     <aside className='hidden h-screen w-64 flex-col border-r bg-white px-6 py-8 shadow-lg md:flex dark:bg-black'>
       <div className='mb-10'>
@@ -40,15 +32,13 @@ export default function AdminSideBar() {
           <ThemedIcon Icon={Settings} />
         </SideBarLink>
 
-        {session && (
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className='flex items-center gap-3 rounded-lg px-4 py-2 transition hover:bg-gray-200 dark:text-white hover:dark:bg-gray-700'
-          >
-            <ThemedIcon Icon={LogOut} />
-            Logout
-          </button>
-        )}
+        <button
+          onClick={() => signOut({ redirectTo: '/signin' })}
+          className='flex items-center gap-3 rounded-lg px-4 py-2 transition hover:bg-gray-200 dark:text-white hover:dark:bg-gray-700'
+        >
+          <ThemedIcon Icon={LogOut} />
+          Logout
+        </button>
       </nav>
     </aside>
   );

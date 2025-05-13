@@ -1,20 +1,26 @@
+import { getAllPosts } from '@/app/actions/getAllPosts';
+import { auth } from '@/auth';
 import AddOrEditPostForm from '@/components/AddOrEditPostForm';
 import ClientPostFeed from '@/components/ClientPostFeed';
-import { prisma } from '@/lib/db';
 
 export default async function FeedPage() {
-  const posts = await prisma.post.findMany({
-    include: {
-      author: true,
-      likes: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  const { data: posts, error } = await getAllPosts();
+  const session = await auth();
+
+  console.log('session >>>>>', session?.user);
+  if (error) {
+    return (
+      <div className='mx-auto max-w-2xl space-y-4 p-4'>
+        <h1 className='text-2xl font-bold'>Global Feed</h1>
+        <p className='text-gray-500 dark:text-gray-400'>
+          {error || 'Something went wrong'}
+        </p>
+      </div>
+    );
+  }
 
   // convert date to string because Date is not serializable
-  const safePosts = posts.map((post) => ({
+  const safePosts = posts?.map((post) => ({
     ...post,
     createdAt: post.createdAt.toLocaleString(),
     author: post.author

@@ -1,0 +1,19 @@
+'use client';
+
+import React from 'react';
+import { LogOut } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+
+import ThemedIcon from './ui/ThemedIcon';
+
+export const SignOutButton = () => {
+  return (
+    <button
+      onClick={() => signOut({ callbackUrl: '/signin' })}
+      className='flex items-center gap-3 rounded-lg px-4 py-2 transition hover:bg-gray-200 dark:text-white hover:dark:bg-gray-700'
+    >
+      <ThemedIcon Icon={LogOut} />
+      Logout
+    </button>
+  );
+};
