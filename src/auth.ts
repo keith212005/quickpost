@@ -13,6 +13,8 @@ const providers: Provider[] = [
     credentials: {
       email: { label: 'Email', type: 'text' },
       password: { label: 'Password', type: 'password' },
+      firstName: { label: 'First Name', type: 'text' },
+      lastName: { label: 'Last Name', type: 'text' },
     },
     async authorize(credentials) {
       if (!credentials?.email || !credentials?.password) {
@@ -35,9 +37,17 @@ const providers: Provider[] = [
         return null;
       }
 
+      // update last login time
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() },
+      });
+
       return {
         id: user.id,
         name: user.name,
+        firstName: user.firstName ?? undefined,
+        lastName: user.lastName ?? undefined,
         email: user.email,
         role: user.role,
         isActive: user.isActive,
@@ -82,10 +92,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         console.log('First time user login:', user);
         token.id = user.id;
         token.role = user.role;
-        token.name = user.name;
+        // Split user.name into firstName and lastName
+        const fullName = user.name ?? '';
+        const [firstName, ...rest] = fullName.trim().split(' ');
+        const lastName = rest.join(' ') || null;
+        token.firstName = firstName;
+        token.lastName = lastName;
         token.email = user.email;
         token.image = user.image;
         token.isActive = user.isActive;
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            lastLogin: new Date(),
+            firstName,
+            lastName,
+          },
+        });
       }
       return token;
     },
@@ -93,7 +116,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
-        session.user.name = token.name as string;
+        session.user.firstName = token.firstName as string;
+        session.user.lastName = token.lastName as string;
         session.user.email = token.email as string;
         session.user.image = token.image as string;
         session.user.isActive = token.isActive as boolean;

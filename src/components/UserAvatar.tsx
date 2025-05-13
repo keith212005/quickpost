@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 export const UserAvatar = () => {
   const { data: session } = useSession();
+  const user = session?.user;
 
   if (!session) {
     return null;
@@ -12,8 +13,13 @@ export const UserAvatar = () => {
 
   return (
     <Avatar>
-      <AvatarImage src={session?.user?.image ?? ''} alt='@shadcn' />
-      <AvatarFallback>CN</AvatarFallback>
+      <AvatarImage
+        src={user?.image ?? ''}
+        alt={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`}
+      />
+      <AvatarFallback>
+        {`${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase()}
+      </AvatarFallback>
     </Avatar>
   );
 };

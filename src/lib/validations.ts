@@ -2,7 +2,12 @@ import * as z from 'zod';
 
 // used in RegisterForm
 export const registerSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
+  firstName: z
+    .string()
+    .min(2, { message: 'Name must be at least 2 characters' }),
+  lastName: z
+    .string()
+    .min(2, { message: 'Name must be at least 2 characters' }),
   email: z.string().email(),
   password: z
     .string()

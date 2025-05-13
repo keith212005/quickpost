@@ -43,7 +43,12 @@ export const SignupForm = () => {
   }, [status, router]);
 
   const onSubmit = async (data: RegisterSchema) => {
-    const res = await registerUser(data.name, data.email, data.password);
+    const res = await registerUser(
+      data.firstName,
+      data.lastName,
+      data.email,
+      data.password,
+    );
 
     if (!res || res.error) {
       setError('root', { message: 'Registration failed. Please try again.' });
@@ -59,7 +64,6 @@ export const SignupForm = () => {
     try {
       const res = await signIn('github', {
         redirect: false,
-        callbackUrl: '/feed',
       });
 
       if (res?.error) {
@@ -90,20 +94,37 @@ export const SignupForm = () => {
           onSubmit={handleSubmit(onSubmit)}
         >
           <div>
-            <Label htmlFor='name'>Name</Label>
+            <Label htmlFor='name'>First Name</Label>
             <Input
-              {...register('name')}
+              {...register('firstName')}
               id='name'
               type='text'
               placeholder='Your name'
               className='mt-2'
             />
-            {errors['name'] && (
+            {errors['firstName'] && (
               <Label htmlFor='name' className='mt-2 text-sm text-red-500'>
-                {errors['name'].message}
+                {errors['firstName'].message}
               </Label>
             )}
           </div>
+
+          <div>
+            <Label htmlFor='name'>Last Name</Label>
+            <Input
+              {...register('lastName')}
+              id='name'
+              type='text'
+              placeholder='Your name'
+              className='mt-2'
+            />
+            {errors['lastName'] && (
+              <Label htmlFor='name' className='mt-2 text-sm text-red-500'>
+                {errors['lastName'].message}
+              </Label>
+            )}
+          </div>
+
           <div>
             <Label htmlFor='email'>Email</Label>
             <Input

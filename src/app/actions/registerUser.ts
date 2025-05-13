@@ -6,7 +6,8 @@ import { prisma } from '@/lib/db';
 import { UserType } from '@/types/types';
 
 export async function registerUser(
-  name: string,
+  firstName: string,
+  lastName: string,
   email: string,
   password: string,
 ): Promise<{ user?: Partial<UserType>; error?: string }> {
@@ -21,7 +22,9 @@ export async function registerUser(
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
-        name,
+        name: `${firstName} ${lastName}`,
+        firstName,
+        lastName,
         email,
         password: hashedPassword,
         role: 'user',

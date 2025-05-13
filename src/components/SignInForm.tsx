@@ -40,9 +40,7 @@ export const SignInForm = () => {
         redirect: false,
         email: data.email,
         password: data.password,
-        callbackUrl: '/user/feed',
       });
-      console.log('Login response >>>>>', res);
 
       if (!res) {
         setError('root', { message: 'Something went wrong during login.' });
@@ -54,7 +52,6 @@ export const SignInForm = () => {
           authErrorMessages[res?.error as keyof typeof authErrorMessages] ??
           res?.error ??
           'Login failed';
-        console.log('Login error111 >>>>>', errorMessage);
         setError('root', { message: errorMessage });
         return;
       }
@@ -63,15 +60,16 @@ export const SignInForm = () => {
         window.location.href = res.url;
       }
     } catch (error) {
-      console.log('Login errorrrrrrrrrr >>>>>', error);
-      setError('root', { message: 'Something went wrong during login.' });
+      setError('root', {
+        message: (error as string) || 'Something went wrong during login.',
+      });
     }
   };
 
   const handleGitHubSignIn = async () => {
     setIsGitHubLoading(true);
     try {
-      signIn('github', { callbackUrl: '/user/feed' });
+      signIn('github');
     } catch (e) {
       console.error('GitHub sign in error >>>>>', e);
       setError('root', { message: 'Something went wrong with GitHub login.' });

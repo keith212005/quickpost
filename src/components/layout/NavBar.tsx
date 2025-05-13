@@ -27,11 +27,17 @@ export default function Navbar() {
           />
           <NavLink href='/' label='QuickPost' />
         </div>
-        <nav className='flex items-center gap-4'>
+        <nav className='flex items-center gap-6'>
+          {session?.user && (
+            <div className='flex items-center gap-3'>
+              <span className='text-sm font-medium text-gray-700 hover:underline dark:text-white'>
+                Welcome, {session.user.firstName}
+              </span>
+              <UserAvatar />
+            </div>
+          )}
           {!session?.user && <NavLink href='/signin' label='Sign In' />}
           <ToggleThemeButton />
-
-          <UserAvatar />
         </nav>
       </div>
     </header>

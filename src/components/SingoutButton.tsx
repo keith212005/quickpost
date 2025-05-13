@@ -9,7 +9,7 @@ import ThemedIcon from './ui/ThemedIcon';
 export const SignOutButton = () => {
   return (
     <button
-      onClick={() => signOut({ callbackUrl: '/signin' })}
+      onClick={() => signOut()}
       className='flex items-center gap-3 rounded-lg px-4 py-2 transition hover:bg-gray-200 dark:text-white hover:dark:bg-gray-700'
     >
       <ThemedIcon Icon={LogOut} />
