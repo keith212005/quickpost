@@ -13,20 +13,11 @@ export default async function FeedPage() {
       <div className='mx-auto max-w-2xl space-y-4 p-4'>
         <h1 className='text-2xl font-bold'>Global Feed</h1>
         <p className='text-gray-500 dark:text-gray-400'>
-          {error || 'Something went wrong'}
+          {error || 'Something went wrong while fetching posts.'}
         </p>
       </div>
     );
   }
-
-  // convert date to string because Date is not serializable
-  const safePosts = posts?.map((post) => ({
-    ...post,
-    createdAt: post.createdAt.toLocaleString(),
-    author: post.author
-      ? { id: post.author.id, name: post.author.name, email: post.author.email }
-      : undefined,
-  }));
 
   return (
     <>
@@ -34,7 +25,7 @@ export default async function FeedPage() {
         <h1 className='text-2xl font-bold'>Global Feed</h1>
         <AddOrEditPostForm />
       </div>
-      <ClientPostFeed posts={safePosts} />
+      <ClientPostFeed posts={posts || []} />
     </>
   );
 }

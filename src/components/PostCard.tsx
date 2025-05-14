@@ -12,36 +12,20 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { TPostSchema } from '@/types/dbTablesTypes';
 
 import AddOrEditPostForm from './AddOrEditPostForm';
 import DeletePostButton from './DeletePostButton';
 
 type PostCardProps = {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: string;
-  author?: {
-    name?: string;
-    email?: string;
-  };
-  likes?: { id: string }[];
+  post: TPostSchema;
   edit?: boolean;
-
   isLikedByUser?: boolean;
 };
 
-export default function PostCard({
-  id,
-  title,
-  content,
-  createdAt,
-  author,
-  likes,
-  edit,
+export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
+  const { id, title, content, likes, author } = post;
 
-  isLikedByUser,
-}: PostCardProps) {
   const router = useRouter();
   const handleToggleLike = async () => {
     try {
@@ -57,7 +41,7 @@ export default function PostCard({
         <CardTitle>{title}</CardTitle>
         <CardDescription>
           {author?.name ? `By ${author.name} • ` : ''}
-          {createdAt}
+          {/* {createdAt} */}
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -12,7 +12,7 @@ export const postSchema = z.object({
       name: z.string(),
       email: z.string().email(),
     })
-    .optional(),
+    .nullable(),
   likes: z.array(z.any()).optional(),
 });
 export type TPostSchema = z.infer<typeof postSchema>;
@@ -21,8 +21,12 @@ export type TPostSchema = z.infer<typeof postSchema>;
 export const userSchema = z.object({
   id: z.string(),
   name: z.string(),
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+  image: z.string().nullable(),
   email: z.string().email(),
   role: z.string(),
+  isActive: z.boolean(),
   isOAuth: z.boolean(),
   createdAt: z.date(),
   lastLogin: z.date().nullable(),
