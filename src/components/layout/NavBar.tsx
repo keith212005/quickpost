@@ -10,8 +10,6 @@ import { UserAvatar } from '../UserAvatar';
 export default function Navbar() {
   const { data: session, status } = useSession();
 
-  console.log('Session in nav:>>>>>>>>>>>', session, status);
-
   if (status === 'loading') return null;
 
   return (
@@ -28,7 +26,7 @@ export default function Navbar() {
           <NavLink href='/' label='QuickPost' />
         </div>
         <nav className='flex items-center gap-6'>
-          {session?.user && (
+          {session?.user.isActive && (
             <div className='flex items-center gap-3'>
               <span className='text-sm font-medium text-gray-700 hover:underline dark:text-white'>
                 Welcome, {session.user.firstName}
@@ -36,7 +34,9 @@ export default function Navbar() {
               <UserAvatar />
             </div>
           )}
-          {!session?.user && <NavLink href='/signin' label='Sign In' />}
+          {!session?.user.isActive && (
+            <NavLink href='/signin' label='Sign In' />
+          )}
           <ToggleThemeButton />
         </nav>
       </div>

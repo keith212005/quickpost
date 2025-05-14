@@ -1,10 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Github, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 import { authErrorMessages } from '@/constants/constants';
 import { LoginSchema, loginSchema } from '@/lib/validations';
@@ -23,6 +25,10 @@ import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 
 export const SignInForm = () => {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
   const {
     register,
     handleSubmit,
@@ -34,12 +40,26 @@ export const SignInForm = () => {
   });
   const [isGitHubLoading, setIsGitHubLoading] = useState(false);
 
+  useEffect(() => {
+    if (error) {
+      setError('root', {
+        message: error,
+      });
+    }
+  }, [error, setError]);
+
   const onSubmit = async (data: LoginSchema) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete('error');
+
     try {
+      console.log('signing in with data >>>>>', data);
       const res = await signIn('credentials', {
         redirect: false,
         email: data.email,
         password: data.password,
+        callbackUrl:
+          session?.user?.role === 'admin' ? '/admin/dashboard' : '/user/feed',
       });
 
       if (!res) {
@@ -69,7 +89,10 @@ export const SignInForm = () => {
   const handleGitHubSignIn = async () => {
     setIsGitHubLoading(true);
     try {
-      signIn('github');
+      signIn('github', {
+        redirectTo:
+          session?.user?.role === 'admin' ? '/admin/dashboard' : '/user/feed',
+      });
     } catch (e) {
       console.error('GitHub sign in error >>>>>', e);
       setError('root', { message: 'Something went wrong with GitHub login.' });
@@ -164,14 +187,13 @@ export const SignInForm = () => {
             {isSubmitting && <Loader2 className='animate-spin' />}
             {isSubmitting ? 'Signing in...' : 'Sign In'}
           </Button>
-          {errors['root'] && (
-            <Label
-              htmlFor='password'
-              className='mt-3 block w-full text-center text-base text-red-500'
-            >
-              {errors['root'].message}
-            </Label>
-          )}
+
+          <Label
+            htmlFor='password'
+            className='mt-3 block w-full text-center text-base text-red-500'
+          >
+            {errors['root'] && errors['root'].message}
+          </Label>
         </form>
       </CardContent>
       <CardFooter className='flex-col'>

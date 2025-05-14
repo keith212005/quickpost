@@ -1,18 +1,10 @@
-import React from 'react';
-import { redirect } from 'next/navigation';
+'use client';
 
-import { auth } from '@/auth';
+import React from 'react';
+
 import { SignInForm } from '@/components/SignInForm';
 
-export default async function SignInPage() {
-  const session = await auth();
-
-  if (session) {
-    redirect(
-      session?.user?.role === 'user' ? '/user/feed' : '/admin/dashboard',
-    );
-  }
-
+export default function SignInPage() {
   return (
     <div className='flex min-h-screen items-center justify-center bg-gray-100 px-4 dark:bg-gray-900'>
       <SignInForm />

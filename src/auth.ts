@@ -89,7 +89,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async jwt({ token, user }) {
       if (user && !token.id) {
-        console.log('First time user login:', user);
+        // console.log('First time user login:', user);
         token.id = user.id;
         token.role = user.role;
         // Split user.name into firstName and lastName
