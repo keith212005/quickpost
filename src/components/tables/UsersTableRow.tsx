@@ -1,28 +1,31 @@
-import React from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu';
+import React, { useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { toggleUserStatus } from '@/app/actions/toggleUserStatus';
 import { TABLE_COLUMNS } from '@/constants/dummyData';
-import { UserType } from '@/types/types';
+import { TUserSchema } from '@/types/dbTablesTypes';
 
+import { EditUserDialog } from '../layout/EditUserDialog';
 import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
 import { TableCell, TableRow } from '../ui/table';
+import { StatusTab } from './StatusTab';
 
 type UsersTableRowProps = {
   visibleColumns: Record<string, boolean>;
   selected: boolean;
   onToggle: () => void;
-  user: UserType;
+  user: TUserSchema;
 };
 
 export const UsersTableRow = ({
@@ -32,11 +35,21 @@ export const UsersTableRow = ({
   user,
 }: UsersTableRowProps) => {
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleEditClick = () => {
+    console.log('Edit user clicked>>>>>>:', user);
+    setTimeout(() => {
+      setIsOpen(!isOpen);
+    }, 200);
+  };
+
   return (
     <TableRow key={user.id}>
       <TableCell>
-        <input
+        <Input
           type='checkbox'
+          id={user.id}
           className='h-4 w-4'
           checked={selected}
           onChange={onToggle}
@@ -72,10 +85,10 @@ export const UsersTableRow = ({
         </TableCell>
       )}
       {visibleColumns[TABLE_COLUMNS[8]] && (
-        <TableCell>{user.posts.length}</TableCell>
+        <TableCell>{user?.posts?.length}</TableCell>
       )}
       {visibleColumns[TABLE_COLUMNS[9]] && (
-        <TableCell>{user.likes.length}</TableCell>
+        <TableCell>{user?.likes?.length}</TableCell>
       )}
 
       <TableCell className='text-right'>
@@ -92,7 +105,7 @@ export const UsersTableRow = ({
           >
             <DropdownMenuItem
               className='hover:bg-muted cursor-pointer px-3 py-2 text-sm'
-              onClick={() => alert('Edit user')}
+              onClick={handleEditClick}
             >
               <Label>Edit</Label>
             </DropdownMenuItem>
@@ -118,21 +131,13 @@ export const UsersTableRow = ({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <EditUserDialog
+          user={user}
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+        />
       </TableCell>
     </TableRow>
-  );
-};
-
-const StatusTab = ({ user }: { user: UserType }) => {
-  return (
-    <span
-      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-        user.isActive
-          ? 'bg-green-100 text-green-700'
-          : 'bg-red-100 text-red-700'
-      }`}
-    >
-      {user.isActive ? 'Active' : 'Inactive'}
-    </span>
   );
 };

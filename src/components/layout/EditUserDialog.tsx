@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { updateUser } from '@/app/actions/updateUser';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserType } from '@/types/types';
+import { TUserSchema } from '@/types/dbTablesTypes';
 
 type FormData = {
   role: string;
@@ -34,7 +34,7 @@ type FormData = {
 type EditUserDialogProps = {
   isOpen: boolean;
   onClose: () => void;
-  user: UserType;
+  user: TUserSchema;
 };
 
 export const EditUserDialog = ({
@@ -43,6 +43,7 @@ export const EditUserDialog = ({
   user,
 }: EditUserDialogProps) => {
   const router = useRouter();
+
   const {
     reset,
     handleSubmit,
@@ -60,14 +61,6 @@ export const EditUserDialog = ({
   const onSubmit = async (
     data: { role: string; isActive: string }, // treat isActive as string from form
   ) => {
-    console.log('Submitted Data:', data.isActive);
-    console.log('Submitted Data:', typeof data.isActive);
-
-    if (!data.role) {
-      console.error('Role is required');
-      return;
-    }
-
     try {
       await updateUser({
         userId: user.id,
@@ -84,120 +77,113 @@ export const EditUserDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='sm:max-w-lg'>
-        <Card className='m-2'>
-          <CardHeader>
-            <DialogHeader>
-              <DialogTitle>Edit User</DialogTitle>
-            </DialogHeader>
-          </CardHeader>
-          <CardContent>
-            <form className='space-y-4' onSubmit={handleSubmit(onSubmit)}>
-              <div>
-                <Label htmlFor='role'>Role</Label>
-                <Select
-                  defaultValue={user.role}
-                  onValueChange={(val) => setValue('role', val)}
-                >
-                  <SelectTrigger className='mt-2 w-full'>
-                    <SelectValue placeholder='Select role' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='admin'>Admin</SelectItem>
-                    <SelectItem value='user'>User</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+      <DialogContent
+        className='sm:max-w-lg'
+        aria-describedby='dialog-description'
+      >
+        <DialogHeader>
+          <DialogTitle>Edit User</DialogTitle>
+        </DialogHeader>
 
-              <div>
-                <Label htmlFor='isActive'>Active Status</Label>
-                <Select
-                  defaultValue={user.isActive ? 'true' : 'false'}
-                  onValueChange={(val) => setValue('isActive', val)}
-                >
-                  <SelectTrigger className='mt-2 w-full'>
-                    <SelectValue placeholder='Select status' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='true'>Active</SelectItem>
-                    <SelectItem value='false'>Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        <form className='space-y-4' onSubmit={handleSubmit(onSubmit)}>
+          <Label htmlFor='role'>Role</Label>
+          <Select
+            defaultValue={user.role}
+            onValueChange={(val: string) => setValue('role', val)}
+          >
+            <SelectTrigger className='mt-2 w-full'>
+              <SelectValue placeholder='Select role' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='admin'>Admin</SelectItem>
+              <SelectItem value='user'>User</SelectItem>
+            </SelectContent>
+          </Select>
 
-              <div>
-                <Label htmlFor='name'>Name</Label>
-                <Input id='name' className='mt-2' value={user.name} disabled />
-              </div>
+          <Label htmlFor='isActive'>Active Status</Label>
+          <Select
+            defaultValue={user.isActive ? 'true' : 'false'}
+            onValueChange={(val: string) => setValue('isActive', val)}
+          >
+            <SelectTrigger className='mt-2 w-full'>
+              <SelectValue placeholder='Select status' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='true'>Active</SelectItem>
+              <SelectItem value='false'>Inactive</SelectItem>
+            </SelectContent>
+          </Select>
 
-              <div>
-                <Label htmlFor='email'>Email</Label>
-                <Input
-                  id='email'
-                  className='mt-2'
-                  value={user.email}
-                  disabled
-                />
-              </div>
+          <Label htmlFor='name'>Name</Label>
+          <Input
+            id='name'
+            className='mt-2'
+            value={user.name}
+            disabled
+            aria-describedby='name-desc'
+          />
 
-              <div>
-                <Label htmlFor='isOAuth'>OAuth User</Label>
-                <Input
-                  id='isOAuth'
-                  className='mt-2'
-                  value={user.isOAuth ? 'Yes' : 'No'}
-                  disabled
-                />
-              </div>
+          <Label htmlFor='email'>Email</Label>
+          <Input
+            id='email'
+            className='mt-2'
+            value={user.email}
+            disabled
+            aria-describedby='email-desc'
+          />
 
-              <div>
-                <Label htmlFor='createdAt'>Created At</Label>
-                <Input
-                  id='createdAt'
-                  className='mt-2'
-                  disabled
-                  value={user.createdAt.toLocaleString()}
-                />
-              </div>
+          <Label htmlFor='isOAuth'>OAuth User</Label>
+          <Input
+            id='isOAuth'
+            className='mt-2'
+            value={user.isOAuth ? 'Yes' : 'No'}
+            disabled
+            aria-describedby='isOAuth-desc'
+          />
 
-              <div>
-                <Label htmlFor='lastLogin'>Last Login</Label>
-                <Input
-                  id='lastLogin'
-                  className='mt-2'
-                  disabled
-                  value={
-                    user.lastLogin ? user.lastLogin.toLocaleString() : 'Never'
-                  }
-                />
-              </div>
+          <Label htmlFor='createdAt'>Created At</Label>
+          <Input
+            id='createdAt'
+            className='mt-2'
+            disabled
+            value={user.createdAt.toLocaleString()}
+            aria-describedby='createdAt-desc'
+          />
 
-              <div>
-                <Label htmlFor='emailVerified'>Email Verified</Label>
-                <Input
-                  id='emailVerified'
-                  className='mt-2'
-                  disabled
-                  value={
-                    user.emailVerified
-                      ? user.emailVerified.toLocaleString()
-                      : 'Not Verified'
-                  }
-                />
-              </div>
+          <Label htmlFor='lastLogin'>Last Login</Label>
+          <Input
+            id='lastLogin'
+            className='mt-2'
+            disabled
+            value={user.lastLogin ? user.lastLogin.toLocaleString() : 'Never'}
+            aria-describedby='lastLogin-desc'
+          />
 
-              <DialogFooter className='mt-6'>
-                <Button type='button' variant='outline' onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button disabled={isSubmitting} type='submit'>
-                  {isSubmitting && <Loader2 className='animate-spin' />}
-                  {isSubmitting ? 'Updating...' : 'Update'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </CardContent>
-        </Card>
+          <Label htmlFor='emailVerified'>Email Verified</Label>
+          <Input
+            id='emailVerified'
+            className='mt-2'
+            disabled
+            value={
+              user.emailVerified
+                ? user.emailVerified.toLocaleString()
+                : 'Not Verified'
+            }
+            aria-describedby='emailVerified-desc'
+          />
+
+          <DialogFooter className='mt-6'>
+            <DialogClose asChild>
+              <Button type='button' variant='outline'>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button disabled={isSubmitting} type='submit'>
+              {isSubmitting && <Loader2 className='animate-spin' />}
+              {isSubmitting ? 'Updating...' : 'Update'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

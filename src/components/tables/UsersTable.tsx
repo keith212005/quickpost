@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody } from '@/components/ui/table';
 import { TABLE_COLUMNS, USERS_PER_PAGE } from '@/constants/dummyData';
-import { UserType } from '@/types/types';
+import { TUserSchema } from '@/types/dbTablesTypes';
 
 import ToggleColumnDropDown from './ToggleColumnDropDown';
 import { UsersTableHeader } from './UsersTableHeader';
@@ -12,7 +12,7 @@ import { UsersTablePagination } from './UsersTablePagination';
 import { UsersTableRow } from './UsersTableRow';
 import UsersTableSearchBar from './UsersTableSearchBar';
 
-const UsersTable = ({ users }: { users: UserType[] }) => {
+const UsersTable = ({ users }: { users: TUserSchema[] }) => {
   const [search, setSearch] = useState('');
 
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);

@@ -1,11 +1,14 @@
 import { prisma } from '@/lib/db';
-import { UserType } from '@/types/types';
+import { TUserSchema } from '@/types/dbTablesTypes';
 
 export async function getAllUsers() {
-  const users: UserType[] = await prisma.user.findMany({
+  const users: TUserSchema[] = await prisma.user.findMany({
     select: {
       id: true,
       name: true,
+      firstName: true,
+      lastName: true,
+      image: true,
       email: true,
       role: true,
       isOAuth: true,

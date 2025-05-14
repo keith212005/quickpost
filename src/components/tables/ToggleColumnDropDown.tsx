@@ -1,13 +1,13 @@
 import React from 'react';
+import { Check, Settings2 } from 'lucide-react';
+
+import { Button } from '../ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  Separator,
-} from '@radix-ui/react-dropdown-menu';
-import { Check, Settings2 } from 'lucide-react';
-
-import { Button } from '../ui/button';
+} from '../ui/dropdown-menu';
+import { Separator } from '../ui/separator';
 
 type ToggleColumnDropDownProps = {
   columns: string[];
