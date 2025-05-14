@@ -16,7 +16,7 @@ export default function ClientPostFeed({ posts }: { posts: TPostSchema[] }) {
           post={post}
           edit={session?.user?.id === post.author?.id ? true : false}
           isLikedByUser={post.likes?.some(
-            (like) => like.userId === post.author?.id,
+            (like) => like.userId === session?.user?.id,
           )}
         />
       ))}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Heart } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
@@ -75,15 +76,25 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
       <CardFooter className='flex items-center justify-between text-sm text-gray-600 dark:text-gray-300'>
         <div className='flex items-center gap-2'>
           {isLikedByUser ? (
-            <Heart
-              className='h-4 w-4 fill-red-500 text-red-500'
-              onClick={handleToggleLike}
-            />
+            <motion.div
+              whileTap={{ scale: 1.3 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              <Heart
+                className='h-4 w-4 cursor-pointer fill-red-500 text-red-500'
+                onClick={handleToggleLike}
+              />
+            </motion.div>
           ) : (
-            <Heart
-              className='h-4 w-4 text-red-500'
-              onClick={handleToggleLike}
-            />
+            <motion.div
+              whileTap={{ scale: 1.3 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              <Heart
+                className='h-4 w-4 cursor-pointer text-red-500'
+                onClick={handleToggleLike}
+              />
+            </motion.div>
           )}
           <span>
             {likes?.length} like{likes?.length !== 1 && 's'}
