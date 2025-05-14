@@ -4,9 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Github, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
-import { toast } from 'sonner';
 
 import { authErrorMessages } from '@/constants/constants';
 import { LoginSchema, loginSchema } from '@/lib/validations';
@@ -25,10 +24,13 @@ import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 
 export const SignInForm = () => {
-  const router = useRouter();
+  const [isGitHubLoading, setIsGitHubLoading] = useState(false);
   const { data: session } = useSession();
+  const url =
+    session?.user?.role === 'admin' ? '/admin/dashboard' : '/user/feed';
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
+
   const {
     register,
     handleSubmit,
@@ -38,14 +40,9 @@ export const SignInForm = () => {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: 'kj@gmail.com', password: '111111' },
   });
-  const [isGitHubLoading, setIsGitHubLoading] = useState(false);
 
   useEffect(() => {
-    if (error) {
-      setError('root', {
-        message: error,
-      });
-    }
+    if (error) setError('root', { message: error });
   }, [error, setError]);
 
   const onSubmit = async (data: LoginSchema) => {
@@ -58,8 +55,7 @@ export const SignInForm = () => {
         redirect: false,
         email: data.email,
         password: data.password,
-        callbackUrl:
-          session?.user?.role === 'admin' ? '/admin/dashboard' : '/user/feed',
+        callbackUrl: url,
       });
 
       if (!res) {
@@ -89,10 +85,7 @@ export const SignInForm = () => {
   const handleGitHubSignIn = async () => {
     setIsGitHubLoading(true);
     try {
-      signIn('github', {
-        redirectTo:
-          session?.user?.role === 'admin' ? '/admin/dashboard' : '/user/feed',
-      });
+      signIn('github', { redirectTo: url });
     } catch (e) {
       console.error('GitHub sign in error >>>>>', e);
       setError('root', { message: 'Something went wrong with GitHub login.' });

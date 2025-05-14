@@ -18,18 +18,14 @@ export async function middleware(request: NextRequest) {
   if (isActive === false) {
     const url = request.nextUrl.clone();
     url.pathname = '/signin';
-    url.searchParams.set('error', 'inactive');
+    url.searchParams.set(
+      'error',
+      'Your account is not active. Please contact support.',
+    );
     return NextResponse.redirect(url);
   }
 
   if (pathname.startsWith('/admin') && role !== 'admin') {
-    // if (session?.user?.isActive === false) {
-    //   const url = request.nextUrl.clone(); // 🛠 clone to avoid side-effects
-    //   url.pathname = '/signin';
-    //   url.searchParams.set('error', 'inactive');
-    //   return NextResponse.redirect(url);
-    // }
-
     return NextResponse.redirect(new URL('/user/feed', request.url));
   }
 

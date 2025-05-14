@@ -16,6 +16,9 @@ export async function getAllUsers() {
       posts: true,
       likes: true,
     },
+    orderBy: {
+      createdAt: 'asc',
+    },
   });
   return users;
 }
