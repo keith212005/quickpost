@@ -10,7 +10,7 @@ export default async function SignInPage() {
   if (session) {
     // Redirect based on role
     if (session.user?.role === 'admin') {
-      redirect('/admin/dashboard');
+      redirect('/admin/dashboard/overview');
     } else if (session.user?.role === 'user' && session.user?.isActive) {
       redirect('/user/feed');
     }

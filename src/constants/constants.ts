@@ -1,3 +1,13 @@
+export const ADMIN_DASHBOARD_TABS = [
+  { value: 'overview', label: 'Overview', route: '/admin/dashboard/overview' },
+  {
+    value: 'analytics',
+    label: 'Analytics',
+    route: '/admin/dashboard/analytics',
+  },
+  { value: 'reports', label: 'Reports', route: '/admin/dashboard/reports' },
+];
+
 export const authErrorMessages: Record<string, string> = {
   CredentialsSignin: 'Invalid credentials',
   AccessDenied: 'Access denied',

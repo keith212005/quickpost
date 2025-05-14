@@ -16,7 +16,7 @@ export default function AdminSideBar() {
         <span className='text-sm text-gray-500 dark:text-gray-400'>v1.0</span>
       </div>
       <nav className='flex flex-col space-y-3 text-[15px] font-medium text-gray-800'>
-        <SideBarLink href='/admin/dashboard' label='Dashboard'>
+        <SideBarLink href='/admin/dashboard/overview' label='Dashboard'>
           <ThemedIcon Icon={Home} />
         </SideBarLink>
 

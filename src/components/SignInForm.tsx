@@ -27,7 +27,9 @@ export const SignInForm = () => {
   const [isGitHubLoading, setIsGitHubLoading] = useState(false);
   const { data: session } = useSession();
   const url =
-    session?.user?.role === 'admin' ? '/admin/dashboard' : '/user/feed';
+    session?.user?.role === 'admin'
+      ? '/admin/dashboard/overview'
+      : '/user/feed';
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
 
