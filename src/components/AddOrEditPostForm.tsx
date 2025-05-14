@@ -70,7 +70,7 @@ const AddOrEditPostForm = ({
       <AlertDialogTrigger asChild>
         <Button>{postId ? 'Edit Post' : 'Add Post'}</Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className='sm:max-w-2xl'>
         <form
           key={postId || 'new'}
           onSubmit={handleSubmit(onSubmit)}
@@ -92,7 +92,8 @@ const AddOrEditPostForm = ({
           )}
           <Textarea
             placeholder='What’s on your mind?'
-            rows={4}
+            rows={15}
+            className='min-h-[300px]'
             {...register('content')}
           />
           {errors.content && (

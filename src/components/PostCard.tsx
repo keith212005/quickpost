@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 import { toggleLike } from '@/app/actions/toggleLike';
 import {
@@ -24,7 +26,8 @@ type PostCardProps = {
 };
 
 export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
-  const { id, title, content, likes, author } = post;
+  const { id, title, content, likes, author, createdAt } = post;
+  const { data: session } = useSession();
 
   const router = useRouter();
   const handleToggleLike = async () => {
@@ -35,31 +38,62 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
       console.error('Error toggling like:', error);
     }
   };
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const maxLines = 5;
+  const isLongContent = content.split('\n').length > maxLines;
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>
+      <CardHeader className='space-y-2'>
+        <CardTitle className='text-xl leading-snug font-semibold'>
+          {title}
+        </CardTitle>
+        <CardDescription className='text-muted-foreground text-sm'>
           {author?.name ? `By ${author.name} • ` : ''}
-          {/* {createdAt} */}
+          {createdAt.toLocaleString()}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <p>{content}</p>
-      </CardContent>
-      <CardFooter className='flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300'>
-        {isLikedByUser ? (
-          <Heart
-            className='h-4 w-4 fill-red-500 text-red-500'
-            onClick={handleToggleLike}
-          />
-        ) : (
-          <Heart className='h-4 w-4 text-red-500' onClick={handleToggleLike} />
+
+      <CardContent className='prose dark:prose-invert max-w-none text-sm leading-relaxed text-gray-700 dark:text-gray-300'>
+        <pre
+          className={`break-words whitespace-pre-wrap ${
+            !isExpanded && isLongContent ? 'line-clamp-[5]' : ''
+          }`}
+        >
+          {content}
+        </pre>
+        {isLongContent && (
+          <button
+            className='mt-2 text-sm text-blue-500 hover:underline'
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {isExpanded ? 'Show less' : 'Read more'}
+          </button>
         )}
-        {likes?.length} like{likes?.length !== 1 && 's'}
+      </CardContent>
+      <CardFooter className='flex items-center justify-between text-sm text-gray-600 dark:text-gray-300'>
+        <div className='flex items-center gap-2'>
+          {isLikedByUser ? (
+            <Heart
+              className='h-4 w-4 fill-red-500 text-red-500'
+              onClick={handleToggleLike}
+            />
+          ) : (
+            <Heart
+              className='h-4 w-4 text-red-500'
+              onClick={handleToggleLike}
+            />
+          )}
+          <span>
+            {likes?.length} like{likes?.length !== 1 && 's'}
+          </span>
+        </div>
         {edit && (
           <div className='ml-auto flex gap-2'>
-            <AddOrEditPostForm postId={id} title={title} content={content} />
+            {session?.user?.id === author?.id && (
+              <AddOrEditPostForm postId={id} title={title} content={content} />
+            )}
             <DeletePostButton postId={id} />
           </div>
         )}

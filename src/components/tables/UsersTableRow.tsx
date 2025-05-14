@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { startTransition, useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -37,11 +37,16 @@ export const UsersTableRow = ({
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleEditClick = () => {
-    console.log('Edit user clicked>>>>>>:', user);
-    setTimeout(() => {
-      setIsOpen(!isOpen);
-    }, 200);
+  const handleOpen = () => {
+    startTransition(() => {
+      setIsOpen(true);
+    });
+  };
+
+  const handleClose = () => {
+    startTransition(() => {
+      setIsOpen(false);
+    });
   };
 
   return (
@@ -105,7 +110,7 @@ export const UsersTableRow = ({
           >
             <DropdownMenuItem
               className='hover:bg-muted cursor-pointer px-3 py-2 text-sm'
-              onClick={handleEditClick}
+              onClick={handleOpen}
             >
               <Label>Edit</Label>
             </DropdownMenuItem>
@@ -132,11 +137,7 @@ export const UsersTableRow = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <EditUserDialog
-          user={user}
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-        />
+        <EditUserDialog user={user} isOpen={isOpen} onClose={handleClose} />
       </TableCell>
     </TableRow>
   );

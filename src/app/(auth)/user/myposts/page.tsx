@@ -16,15 +16,11 @@ export default async function MyPosts() {
       ) : (
         posts?.map((post) => (
           <PostCard
-            edit={true}
             key={post.id}
-            id={post.id}
-            title={post.title}
-            content={post.content}
-            createdAt={post.createdAt.toLocaleString()}
-            likes={post.likes}
+            post={post}
+            edit={session?.user?.id === post.author?.id ? true : false}
             isLikedByUser={post.likes?.some(
-              (like) => like.userId === session?.user.id,
+              (like) => like.userId === post.author?.id,
             )}
           />
         ))

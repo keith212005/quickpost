@@ -1,13 +1,10 @@
 import { getAllPosts } from '@/app/actions/getAllPosts';
-import { auth } from '@/auth';
 import AddOrEditPostForm from '@/components/AddOrEditPostForm';
 import ClientPostFeed from '@/components/ClientPostFeed';
 
 export default async function FeedPage() {
   const { data: posts, error } = await getAllPosts();
-  const session = await auth();
 
-  console.log('session >>>>>', session?.user);
   if (error) {
     return (
       <div className='mx-auto max-w-2xl space-y-4 p-4'>
