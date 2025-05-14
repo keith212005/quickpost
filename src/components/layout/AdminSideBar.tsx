@@ -3,7 +3,7 @@
 import { Home, MessageSquareText, Settings, User } from 'lucide-react';
 
 import { SignOutButton } from '../SingoutButton';
-import SideBarLink from '../ui/SideBarLink';
+import { SideBarLink } from '../ui/SideBarLink';
 import ThemedIcon from '../ui/ThemedIcon';
 
 export default function AdminSideBar() {
