@@ -71,6 +71,11 @@ const AddOrEditPostForm = ({
         <Button>{postId ? 'Edit Post' : 'Add Post'}</Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-2xl'>
+        <div className='mb-6 flex items-center space-x-2'>
+          <span className='h-3 w-3 rounded-full bg-red-500'></span>
+          <span className='h-3 w-3 rounded-full bg-yellow-400'></span>
+          <span className='h-3 w-3 rounded-full bg-green-500'></span>
+        </div>
         <form
           key={postId || 'new'}
           onSubmit={handleSubmit(onSubmit)}
@@ -100,18 +105,17 @@ const AddOrEditPostForm = ({
             <p className='text-sm text-red-500'>{errors.content.message}</p>
           )}
           <DialogFooter>
-            <DialogClose asChild>
-              <Button type='button' variant='outline'>
-                Cancel
-              </Button>
-            </DialogClose>
-
             {postId ? (
-              <Button type='submit' disabled={loading} variant='destructive'>
+              <Button
+                type='submit'
+                disabled={loading}
+                variant='destructive'
+                className='w-full'
+              >
                 {loading ? 'Saving...' : 'Save'}
               </Button>
             ) : (
-              <Button type='submit' disabled={loading}>
+              <Button type='submit' disabled={loading} className='w-full'>
                 {loading ? 'Posting...' : 'Post'}
               </Button>
             )}
