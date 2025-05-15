@@ -6,17 +6,17 @@ import { useRouter } from 'next/navigation';
 
 import { createPost } from '@/app/actions/createPost';
 import { updatePost } from '@/app/actions/updatePost';
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { PostSchema, PostSchemaType } from '@/schemas/postSchema';
 
 import { Input } from './ui/input';
@@ -66,26 +66,26 @@ const AddOrEditPostForm = ({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
         <Button>{postId ? 'Edit Post' : 'Add Post'}</Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent className='sm:max-w-2xl'>
+      </DialogTrigger>
+      <DialogContent className='sm:max-w-2xl'>
         <form
           key={postId || 'new'}
           onSubmit={handleSubmit(onSubmit)}
           className='space-y-4'
         >
-          <AlertDialogHeader>
-            <AlertDialogTitle>
+          <DialogHeader>
+            <DialogTitle>
               {postId ? 'Edit Post' : 'Create new Post'}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               {postId
                 ? 'Update your post title and content.'
                 : 'Write something new to share with others.'}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <Input placeholder='Title' {...register('title')} />
           {errors.title && (
             <p className='text-sm text-red-500'>{errors.title.message}</p>
@@ -99,8 +99,12 @@ const AddOrEditPostForm = ({
           {errors.content && (
             <p className='text-sm text-red-500'>{errors.content.message}</p>
           )}
-          <AlertDialogFooter>
-            <AlertDialogCancel type='button'>Cancel</AlertDialogCancel>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type='button' variant='outline'>
+                Cancel
+              </Button>
+            </DialogClose>
 
             {postId ? (
               <Button type='submit' disabled={loading} variant='destructive'>
@@ -111,10 +115,10 @@ const AddOrEditPostForm = ({
                 {loading ? 'Posting...' : 'Post'}
               </Button>
             )}
-          </AlertDialogFooter>
+          </DialogFooter>
         </form>
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   );
 };
 

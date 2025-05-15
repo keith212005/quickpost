@@ -1,10 +1,11 @@
+'use client';
 import { Home, MessageSquareText, Settings, User } from 'lucide-react';
 
 import { SignOutButton } from '../SingoutButton';
-import SideBarLink from '../ui/SideBarLink';
+import { SideBarLink } from '../ui/SideBarLink';
 import ThemedIcon from '../ui/ThemedIcon';
 
-export default async function Sidebar() {
+export default function Sidebar() {
   return (
     <aside className='hidden h-screen w-64 flex-col border-r bg-white px-6 py-8 shadow-lg md:flex dark:bg-black'>
       <div className='mb-10'>
