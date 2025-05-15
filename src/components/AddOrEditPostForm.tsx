@@ -9,7 +9,6 @@ import { updatePost } from '@/app/actions/updatePost';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
