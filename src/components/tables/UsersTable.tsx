@@ -6,9 +6,9 @@ import { Table, TableBody } from '@/components/ui/table';
 import { TABLE_COLUMNS, USERS_PER_PAGE } from '@/constants/dummyData';
 import { TUserSchema } from '@/types/dbTablesTypes';
 
+import { Paginate } from '../ui/Paginate';
 import ToggleColumnDropDown from './ToggleColumnDropDown';
 import { UsersTableHeader } from './UsersTableHeader';
-import { UsersTablePagination } from './UsersTablePagination';
 import { UsersTableRow } from './UsersTableRow';
 import UsersTableSearchBar from './UsersTableSearchBar';
 
@@ -28,14 +28,6 @@ const UsersTable = ({ users }: { users: TUserSchema[] }) => {
     (currentPage - 1) * USERS_PER_PAGE,
     currentPage * USERS_PER_PAGE,
   );
-
-  const goToPreviousPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const goToNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -106,12 +98,10 @@ const UsersTable = ({ users }: { users: TUserSchema[] }) => {
         </Table>
       </div>
 
-      <UsersTablePagination
+      <Paginate
+        page={currentPage}
         totalPages={totalPages}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        goToPreviousPage={goToPreviousPage}
-        goToNextPage={goToNextPage}
+        setPage={setCurrentPage}
       />
     </Card>
   );

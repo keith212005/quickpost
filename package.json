@@ -9,7 +9,11 @@
     "lint": "next lint",
     "migrate": "npx prisma migrate dev --name add-author-relation",
     "generate": "npx prisma generate",
-    "resetdb": "npx prisma db execute --file ./drop-all-tables.sql --schema=./prisma/schema.prisma"
+    "resetdb": "npx prisma db execute --file ./drop-all-tables.sql --schema=./prisma/schema.prisma",
+    "seed":"npx ts-node --project tsconfig.seed.json prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node --project tsconfig.seed.json prisma/seed.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.9.1",
@@ -27,6 +31,7 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.506.0",
     "motion": "^12.11.3",
     "next": "15.3.1",
@@ -35,6 +40,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.1",
+    "recharts": "^2.15.3",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.2.0",
     "usehooks-ts": "^3.1.1",
@@ -42,8 +48,9 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@faker-js/faker": "^9.8.0",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^22.15.18",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
@@ -53,6 +60,7 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "prisma": "^6.7.0",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "tw-animate-css": "^1.2.8",
     "typescript": "^5"
   }

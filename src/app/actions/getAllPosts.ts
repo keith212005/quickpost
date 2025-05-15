@@ -1,9 +1,11 @@
 import { prisma } from '@/lib/db';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
-export async function getAllPosts() {
+export async function getAllPosts(take: number = 50, skip: number = 0) {
   try {
     const posts: TPostSchema[] = await prisma.post.findMany({
+      take,
+      skip,
       select: {
         id: true,
         title: true,
@@ -25,18 +27,6 @@ export async function getAllPosts() {
             userId: true,
             postId: true,
             createdAt: true,
-            user: true,
-            post: {
-              select: {
-                id: true,
-                title: true,
-                content: true,
-                published: true,
-                uploadedAt: true,
-                createdAt: true,
-                author: true,
-              },
-            },
           },
         },
       },
@@ -45,11 +35,12 @@ export async function getAllPosts() {
       },
     });
 
-    console.log('Fetched posts:', posts);
+    const totalCount = await prisma.post.count();
 
     return {
       success: true,
       data: posts,
+      totalCount: totalCount,
       error: undefined,
     };
   } catch (error) {

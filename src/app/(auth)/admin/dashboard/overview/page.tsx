@@ -2,7 +2,9 @@ import { Activity, FileText, Users } from 'lucide-react';
 
 import { getDashboardStats } from '@/app/actions/getDashboardStats';
 import { DashboardErrorToast } from '@/components/DashboardErrorToast';
+import PostsChart from '@/components/PostsChart';
 import { StatCard } from '@/components/StatCard';
+import TopUsersChart from '@/components/TopUsersChart';
 
 const AdminDashboardOverview = async () => {
   const { totalPosts, totalUsers, postsThisMonth, activeUsers, error } =
@@ -37,6 +39,11 @@ const AdminDashboardOverview = async () => {
           icon={Activity}
           variant='info'
         />
+      </div>
+
+      <div className='mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2'>
+        <PostsChart />
+        <TopUsersChart />
       </div>
     </div>
   );
