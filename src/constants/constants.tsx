@@ -1,3 +1,4 @@
+import Actions from '@/components/tables/Actions';
 import { StatusTab } from '@/components/tables/StatusTab';
 import { TUserSchema } from '@/types/dbTablesTypes';
 
@@ -47,6 +48,14 @@ export const authErrorMessages: Record<string, string> = {
 };
 
 export const USER_TABLE_COLUMNS = [
+  // {
+  //   accessorKey: 'action',
+  //   header: 'Action',
+  //   size: 50,
+  //   minSize: 50,
+  //   maxSize: 50,
+  //   cell: () => <Actions />,
+  // },
   {
     accessorKey: 'id',
     header: 'Id',
@@ -57,19 +66,6 @@ export const USER_TABLE_COLUMNS = [
     cell: ({ getValue }: { getValue: () => unknown }) => {
       const value = getValue();
       return <div className='w-full truncate'>{value as string}</div>;
-    },
-  },
-  {
-    accessorKey: 'isActive',
-    header: 'Status',
-    size: 100,
-    cell: ({ getValue }: { getValue: () => unknown }) => {
-      const isActive = getValue();
-      return (
-        <div className='flex items-center justify-center'>
-          <StatusTab user={{ isActive } as TUserSchema} />
-        </div>
-      );
     },
   },
   {
@@ -88,6 +84,20 @@ export const USER_TABLE_COLUMNS = [
     minSize: 200,
     maxSize: 400,
   },
+  {
+    accessorKey: 'isActive',
+    header: 'Status',
+    size: 100,
+    cell: ({ getValue }: { getValue: () => unknown }) => {
+      const isActive = getValue();
+      return (
+        <div className='flex items-center justify-center'>
+          <StatusTab user={{ isActive } as TUserSchema} />
+        </div>
+      );
+    },
+  },
+
   {
     accessorKey: 'role',
     header: 'Role',

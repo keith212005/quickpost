@@ -6,7 +6,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-// Override USER_TABLE_COLUMNS with custom rendering logic for isActive
 import { Card } from '@/components/ui/card';
 import {
   Table,
@@ -17,27 +16,32 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { USER_TABLE_COLUMNS } from '@/constants/constants';
-import { TABLE_COLUMNS, USERS_PER_PAGE } from '@/constants/dummyData';
+import { USERS_PER_PAGE } from '@/constants/dummyData';
 import { TUserSchema } from '@/types/dbTablesTypes';
 
 import { Button } from '../ui/button';
 import { Paginate } from '../ui/Paginate';
+import Actions from './Actions';
 import ToggleColumnDropDown from './ToggleColumnDropDown';
 import UsersTableSearchBar from './UsersTableSearchBar';
 
 const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
-  const users = useMemo(() => {
-    return userss;
-  }, []);
+  const users = useMemo(() => userss, [userss]);
 
+  // State declarations
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [visibleColumns, setVisibleColumns] = useState(() =>
     Object.fromEntries(
-      USER_TABLE_COLUMNS.map((col) => [col.accessorKey, true]),
+      USER_TABLE_COLUMNS.map((col) => [
+        col.accessorKey,
+        !['id', 'image'].includes(col.accessorKey), // hide these columns
+      ]),
     ),
   );
+  const [columnSizing, setColumnSizing] = useState({});
 
+  // Toggle visibility of columns
   const toggleColumn = (col: string) => {
     setVisibleColumns((prev) => ({
       ...prev,
@@ -45,27 +49,32 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
     }));
   };
 
-  const filteredUsers = React.useMemo(() => {
+  // Filter users based on search input
+  const filteredUsers = useMemo(() => {
     return users.filter((user) =>
       `${user.name} ${user.email}`.toLowerCase().includes(search.toLowerCase()),
     );
   }, [users, search]);
 
+  // Calculate total pages
   const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
-  const paginatedUsers = React.useMemo(() => {
-    return filteredUsers.slice(
-      (currentPage - 1) * USERS_PER_PAGE,
-      currentPage * USERS_PER_PAGE,
-    );
-  }, [filteredUsers, currentPage]);
 
-  const [columnSizing, setColumnSizing] = useState({});
+  // Extract visible columns based on visibility state
   const visibleUserTableColumns = useMemo(() => {
     return USER_TABLE_COLUMNS.filter(
       (col) => visibleColumns[col.accessorKey] !== false,
     );
   }, [visibleColumns]);
 
+  // Paginate filtered users
+  const paginatedUsers = useMemo(() => {
+    return filteredUsers.slice(
+      (currentPage - 1) * USERS_PER_PAGE,
+      currentPage * USERS_PER_PAGE,
+    );
+  }, [filteredUsers, currentPage]);
+
+  // React table instance
   const table = useReactTable({
     data: paginatedUsers,
     columns: visibleUserTableColumns,
@@ -82,21 +91,18 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
     onColumnSizingChange: setColumnSizing,
   });
 
+  // Reset current page if it exceeds total pages
   React.useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(1);
     }
   }, [totalPages, currentPage]);
 
-  React.useEffect(() => {
-    console.log('Filtered users:', filteredUsers.length);
-    console.log('Paginated users:', paginatedUsers.length);
-  }, [filteredUsers, paginatedUsers]);
-
   return (
-    <Card className='mx-auto mt-4 w-full max-w-screen-xl gap-4 overflow-x-auto rounded-md border px-4 py-6 sm:px-6'>
+    <Card className='mx-auto mt-4 w-full max-w-screen-xl gap-4 rounded-md border px-4 py-6 sm:px-6'>
       <h1 className='mb-4 text-3xl font-bold'>All Users</h1>
 
+      {/* Search and Add User Controls */}
       <div className='flex flex-col items-start gap-2 pb-4 sm:flex-row sm:items-start sm:justify-between'>
         <div>
           <Button className='mb-4'>Add User</Button>
@@ -116,22 +122,43 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
         />
       </div>
 
-      <div className='mt-4 w-full overflow-x-auto rounded-md border'>
+      {/* Table with fixed Action column and scrollable content */}
+      <div className='flex w-full overflow-x-auto'>
+        {/* Fixed Action Column */}
+        <div className='sticky left-0 z-30 border-r bg-white dark:bg-zinc-900'>
+          <Table>
+            <TableHeader>
+              <TableRow className='h-14 align-middle'>
+                <TableHead className='w-[50px] text-center'>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedUsers.map((user) => (
+                <TableRow key={user.id} className='h-14 align-middle'>
+                  <TableCell className='h-14 w-[50px] text-center align-middle'>
+                    <Actions />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Scrollable Table */}
         <div className='min-w-max'>
           <Table className='min-w-full table-auto'>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow key={headerGroup.id} className='h-14 align-middle'>
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className={`sticky top-0 z-10 bg-gray-200 dark:bg-zinc-800 ${header.index === 0 ? 'left-0 z-20 bg-gray-200 dark:bg-zinc-800' : ''}`}
+                      className='bg-gray-200 text-center dark:bg-zinc-800'
                       style={{
                         width: `${header.getSize()}px`,
-                        position: 'relative',
                       }}
                     >
-                      <div className='flex w-full items-center justify-between'>
+                      <div className='w-full text-center'>
                         {flexRender(
                           header.column.columnDef.header,
                           header.getContext(),
@@ -161,12 +188,12 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
                 </TableRow>
               ) : (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id} className='h-14 align-middle'>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
                         style={{ width: `${cell.column.getSize()}px` }}
-                        className={`${cell.column.getIndex() === 0 ? 'sticky left-0 z-10 bg-white dark:bg-zinc-900' : ''}`}
+                        className='h-14 align-middle'
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -182,6 +209,7 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
         </div>
       </div>
 
+      {/* Pagination Controls */}
       <Paginate
         page={currentPage}
         totalPages={totalPages}
