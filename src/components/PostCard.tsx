@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
@@ -33,7 +33,9 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
   const router = useRouter();
   const handleToggleLike = async () => {
     try {
-      await toggleLike(id);
+      startTransition(() => {
+        toggleLike(post.id); // this should be imported from a server action
+      });
       router.refresh();
     } catch (error) {
       console.error('Error toggling like:', error);

@@ -9,7 +9,7 @@ async function main() {
   console.log('Seeding...');
 
   // 1. Create Users
-  const userCount = 10;
+  const userCount = 6;
   const users = await Promise.all(
     Array.from({ length: userCount }).map(() =>
       prisma.user.create({
@@ -33,25 +33,32 @@ async function main() {
   // 2. Create Posts
   const posts: TPostSchema[] = [];
   for (const user of users) {
-    const postCount = faker.number.int({ min: 1, max: 10 });
+    const postCount = faker.number.int({ min: 1, max: 2 });
 
     for (let i = 0; i < postCount; i++) {
       const post = await prisma.post.create({
         data: {
           title: faker.lorem.sentence(),
-          content: faker.lorem.paragraphs(2),
+          content: faker.lorem.paragraphs(1),
           published: true,
           authorId: user.id,
         },
       });
 
-      posts.push(post);
+      posts.push({
+        ...post,
+        author: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+      });
     }
   }
 
   // 3. Create Likes
   for (const post of posts) {
-    const numLikes = faker.number.int({ min: 0, max: 10 });
+    const numLikes = faker.number.int({ min: 0, max: 2 });
     const likedBy = faker.helpers.arrayElements(users, numLikes);
 
     for (const user of likedBy) {

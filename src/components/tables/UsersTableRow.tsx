@@ -60,7 +60,11 @@ export const UsersTableRow = ({
           onChange={onToggle}
         />
       </TableCell>
-      {visibleColumns[TABLE_COLUMNS[0]] && <TableCell>{user.id}</TableCell>}
+      {visibleColumns[TABLE_COLUMNS[0]] && (
+        <TableCell>
+          <div className='max-w-[100px] truncate'>{user.id}</div>
+        </TableCell>
+      )}
       {visibleColumns[TABLE_COLUMNS[1]] && (
         <TableCell>
           <StatusTab user={user} />

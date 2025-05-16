@@ -20,7 +20,7 @@ export async function getAllUsers() {
       likes: true,
     },
     orderBy: {
-      createdAt: 'asc',
+      createdAt: 'desc',
     },
   });
   return users;

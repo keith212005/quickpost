@@ -6,8 +6,12 @@ import UsersTable from '@/components/tables/UsersTable';
 const UsersPage = async () => {
   const users = await getAllUsers();
 
-  console.log({ users });
-  return <UsersTable users={users} />;
+  // console.log('Server logs users:', users.length);
+  return (
+    <div>
+      <UsersTable userss={users} />
+    </div>
+  );
 };
 
 export default UsersPage;

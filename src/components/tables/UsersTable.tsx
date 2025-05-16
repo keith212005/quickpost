@@ -1,50 +1,36 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 
+// Override USER_TABLE_COLUMNS with custom rendering logic for isActive
 import { Card } from '@/components/ui/card';
-import { Table, TableBody } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { USER_TABLE_COLUMNS } from '@/constants/constants';
 import { TABLE_COLUMNS, USERS_PER_PAGE } from '@/constants/dummyData';
 import { TUserSchema } from '@/types/dbTablesTypes';
 
 import { Paginate } from '../ui/Paginate';
 import ToggleColumnDropDown from './ToggleColumnDropDown';
-import { UsersTableHeader } from './UsersTableHeader';
-import { UsersTableRow } from './UsersTableRow';
 import UsersTableSearchBar from './UsersTableSearchBar';
 
-const UsersTable = ({ users }: { users: TUserSchema[] }) => {
+const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
+  const users = useMemo(() => {
+    return userss;
+  }, []);
+
   const [search, setSearch] = useState('');
-
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-
-  const filteredUsers = users.filter((user) =>
-    `${user.name} ${user.email}`.toLowerCase().includes(search.toLowerCase()),
-  );
-
   const [currentPage, setCurrentPage] = useState(1);
-
-  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * USERS_PER_PAGE,
-    currentPage * USERS_PER_PAGE,
-  );
-
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setSelectedUsers(filteredUsers.map((user) => user.id));
-    } else {
-      setSelectedUsers([]);
-    }
-  };
-
-  const handleUserToggle = (userId: string) => {
-    setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId],
-    );
-  };
-
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(
     TABLE_COLUMNS.reduce((acc, col) => ({ ...acc, [col]: true }), {}),
   );
@@ -56,46 +42,129 @@ const UsersTable = ({ users }: { users: TUserSchema[] }) => {
     }));
   };
 
+  const filteredUsers = React.useMemo(() => {
+    return users.filter((user) =>
+      `${user.name} ${user.email}`.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [users, search]);
+
+  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
+  const paginatedUsers = React.useMemo(() => {
+    return filteredUsers.slice(
+      (currentPage - 1) * USERS_PER_PAGE,
+      currentPage * USERS_PER_PAGE,
+    );
+  }, [filteredUsers, currentPage]);
+
+  const [columnSizing, setColumnSizing] = useState({});
+  const table = useReactTable({
+    data: paginatedUsers,
+    columns: USER_TABLE_COLUMNS,
+    getCoreRowModel: getCoreRowModel(),
+    columnResizeMode: 'onChange',
+    defaultColumn: {
+      // size: 50,
+      // minSize: 5,
+      maxSize: 400,
+    },
+    state: {
+      columnSizing,
+    },
+    onColumnSizingChange: setColumnSizing,
+  });
+
+  React.useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
+  React.useEffect(() => {
+    console.log('Filtered users:', filteredUsers.length);
+    console.log('Paginated users:', paginatedUsers.length);
+  }, [filteredUsers, paginatedUsers]);
+
   return (
-    <Card className='m-6 gap-3 p-6'>
+    <Card className='mx-auto mt-4 w-full max-w-[1300px] gap-3 overflow-auto rounded-md border px-4 py-6 sm:px-6'>
       <h1 className='mb-4 text-3xl font-bold'>All Users</h1>
 
-      <UsersTableSearchBar
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className='flex flex-col items-start gap-2 pb-4 sm:flex-row sm:items-center sm:justify-between'>
+        <UsersTableSearchBar
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-      <div className='flex items-center justify-between'>
-        <div></div>
-        <div className='flex flex-col items-center'>
-          <ToggleColumnDropDown
-            columns={TABLE_COLUMNS}
-            visibleColumns={visibleColumns}
-            toggleColumn={toggleColumn}
-          />
-        </div>
+        <ToggleColumnDropDown
+          columns={TABLE_COLUMNS}
+          visibleColumns={visibleColumns}
+          toggleColumn={toggleColumn}
+        />
       </div>
 
-      <div className='mt-4 rounded-md border'>
-        <Table>
-          <UsersTableHeader
-            filteredUsers={filteredUsers}
-            selectedUsers={selectedUsers}
-            handleSelectAll={handleSelectAll}
-            visibleColumns={visibleColumns}
-          />
-          <TableBody>
-            {paginatedUsers.map((user) => (
-              <UsersTableRow
-                key={user.id}
-                user={user}
-                visibleColumns={visibleColumns}
-                selected={selectedUsers.includes(user.id)}
-                onToggle={() => handleUserToggle(user.id)}
-              />
-            ))}
-          </TableBody>
-        </Table>
+      <div className='mt-4 w-full overflow-x-auto rounded-md border'>
+        <div className='min-w-max'>
+          <Table className='min-w-full table-auto'>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className={`sticky top-0 z-10 bg-gray-200 dark:bg-zinc-800 ${header.index === 0 ? 'left-0 z-20 bg-inherit' : ''}`}
+                      style={{
+                        width: `${header.getSize()}px`,
+                        position: 'relative',
+                      }}
+                    >
+                      <div className='flex w-full items-center justify-between'>
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                      </div>
+                      {header.column.getCanResize() && (
+                        <div
+                          onMouseDown={header.getResizeHandler()}
+                          onTouchStart={header.getResizeHandler()}
+                          className='bg-muted absolute top-0 right-0 h-full w-2 shrink-0 cursor-col-resize'
+                        />
+                      )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={USER_TABLE_COLUMNS.length}
+                    className='text-muted-foreground text-center'
+                  >
+                    No users found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        style={{ width: `${cell.column.getSize()}px` }}
+                        className={`${cell.column.getIndex() === 0 ? 'sticky left-0 z-10 bg-white dark:bg-zinc-900' : ''}`}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <Paginate

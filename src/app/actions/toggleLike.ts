@@ -11,17 +11,8 @@ export async function toggleLike(postId: string) {
 
   const userId = session.user.id;
 
-  const existing = await prisma.like.findUnique({
-    where: {
-      userId_postId: {
-        userId,
-        postId,
-      },
-    },
-  });
-
-  if (existing) {
-    await prisma.like.delete({
+  try {
+    const existing = await prisma.like.findUnique({
       where: {
         userId_postId: {
           userId,
@@ -29,12 +20,29 @@ export async function toggleLike(postId: string) {
         },
       },
     });
-  } else {
-    await prisma.like.create({
-      data: {
-        userId,
-        postId,
-      },
-    });
+
+    if (existing) {
+      await prisma.like.delete({
+        where: {
+          userId_postId: {
+            userId,
+            postId,
+          },
+        },
+      });
+      return { liked: false };
+    } else {
+      await prisma.like.create({
+        data: {
+          userId,
+          postId,
+        },
+      });
+      console.log('👍 Like created for', postId, 'by', userId);
+      return { liked: true };
+    }
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    throw new Error('Unable to toggle like');
   }
 }
