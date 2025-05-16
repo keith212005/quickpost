@@ -49,7 +49,7 @@ export default async function RootLayout({
             <div className='flex'>
               <main className='flex-1'>{children}</main>
             </div>
-            <Toaster />
+            <Toaster position='top-center' />
           </SessionProvider>
         </ThemeProvider>
       </body>

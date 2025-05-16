@@ -157,4 +157,27 @@ export const USER_TABLE_COLUMNS = [
       return value?.toLocaleString();
     },
   },
+  {
+    accessorKey: 'posts',
+    header: 'Total Posts',
+    enableResizing: true,
+    size: 150,
+    minSize: 100,
+    maxSize: 300,
+    cell: ({ getValue }: { getValue: () => unknown }) => {
+      return (getValue() as unknown[] | undefined)?.length || 0;
+    },
+  },
+
+  {
+    accessorKey: 'likes',
+    header: 'Total Likes',
+    enableResizing: true,
+    size: 150,
+    minSize: 100,
+    maxSize: 300,
+    cell: ({ getValue }: { getValue: () => unknown }) => {
+      return (getValue() as unknown[] | undefined)?.length || 0;
+    },
+  },
 ];

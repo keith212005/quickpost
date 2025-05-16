@@ -1,5 +1,7 @@
 'use server';
 
+import { UserRole } from '@prisma/client';
+
 import { prisma } from '@/lib/db';
 
 export async function updateUser({
@@ -8,7 +10,7 @@ export async function updateUser({
   isActive,
 }: {
   userId: string;
-  role: string;
+  role: UserRole;
   isActive: boolean;
 }) {
   try {

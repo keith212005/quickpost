@@ -8,6 +8,7 @@ import {
 } from '@radix-ui/react-dropdown-menu';
 import { MoreVerticalIcon, Pencil, User2, UserX } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 import { updateUser } from '@/app/actions/updateUser';
 import { TUserSchema } from '@/types/dbTablesTypes';
@@ -34,13 +35,22 @@ const Actions = ({ user }: { user: TUserSchema }) => {
           </DropdownMenuItem>
           <DropdownMenuItem
             className='hover:bg-muted focus:bg-muted flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none'
-            onClick={() => {
-              updateUser({
+            onClick={async () => {
+              const response = await updateUser({
                 userId: user.id,
                 role: user.role,
                 isActive: !user.isActive,
               });
-              router.refresh();
+
+              if (response.success) {
+                toast.success(
+                  `User ${!user.isActive ? 'activated' : 'deactivated'}`,
+                );
+                router.refresh();
+              } else {
+                console.error('Failed to update user:', response.error);
+                toast.error(`Failed to update user`);
+              }
             }}
           >
             {user.isActive ? (

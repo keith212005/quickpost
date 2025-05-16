@@ -1,3 +1,4 @@
+import { UserRole } from '@prisma/client';
 import { z } from 'zod';
 
 // Post schema (define first if it's used inside likeSchema)
@@ -25,7 +26,7 @@ export const userSchema = z.object({
   lastName: z.string().nullable(),
   image: z.string().nullable(),
   email: z.string().email(),
-  role: z.string(),
+  role: z.nativeEnum(UserRole),
   isActive: z.boolean(),
   isOAuth: z.boolean(),
   createdAt: z.date(),
