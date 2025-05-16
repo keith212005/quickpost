@@ -1,4 +1,3 @@
-import Actions from '@/components/tables/Actions';
 import { StatusTab } from '@/components/tables/StatusTab';
 import { TUserSchema } from '@/types/dbTablesTypes';
 
@@ -48,14 +47,6 @@ export const authErrorMessages: Record<string, string> = {
 };
 
 export const USER_TABLE_COLUMNS = [
-  // {
-  //   accessorKey: 'action',
-  //   header: 'Action',
-  //   size: 50,
-  //   minSize: 50,
-  //   maxSize: 50,
-  //   cell: () => <Actions />,
-  // },
   {
     accessorKey: 'id',
     header: 'Id',
@@ -90,11 +81,7 @@ export const USER_TABLE_COLUMNS = [
     size: 100,
     cell: ({ getValue }: { getValue: () => unknown }) => {
       const isActive = getValue();
-      return (
-        <div className='flex items-center justify-center'>
-          <StatusTab user={{ isActive } as TUserSchema} />
-        </div>
-      );
+      return <StatusTab user={{ isActive } as TUserSchema} />;
     },
   },
 
@@ -141,8 +128,8 @@ export const USER_TABLE_COLUMNS = [
     minSize: 100,
     maxSize: 300,
     cell: ({ getValue }: { getValue: () => unknown }) => {
-      const createdAt = getValue() as Date;
-      return createdAt.toLocaleString();
+      const value = getValue() as Date;
+      return value?.toLocaleString();
     },
   },
 
@@ -154,8 +141,8 @@ export const USER_TABLE_COLUMNS = [
     minSize: 100,
     maxSize: 300,
     cell: ({ getValue }: { getValue: () => unknown }) => {
-      const createdAt = getValue() as Date;
-      return createdAt.toLocaleString();
+      const value = getValue() as Date;
+      return value?.toLocaleString();
     },
   },
   {

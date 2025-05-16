@@ -153,7 +153,7 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className='bg-gray-200 text-center dark:bg-zinc-800'
+                      className='relative bg-gray-200 text-center dark:bg-zinc-800'
                       style={{
                         width: `${header.getSize()}px`,
                       }}
@@ -168,7 +168,7 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
                         <div
                           onMouseDown={header.getResizeHandler()}
                           onTouchStart={header.getResizeHandler()}
-                          className='bg-muted absolute top-0 right-0 h-full w-2 shrink-0 cursor-col-resize'
+                          className='bg-muted absolute top-0 right-0 h-full w-2 shrink-0 cursor-col-resize transition-colors duration-200 hover:bg-gray-400'
                         />
                       )}
                     </TableHead>
@@ -193,7 +193,7 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
                       <TableCell
                         key={cell.id}
                         style={{ width: `${cell.column.getSize()}px` }}
-                        className='h-14 align-middle'
+                        className='h-14 text-center align-middle'
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
