@@ -20,6 +20,7 @@ import { USER_TABLE_COLUMNS } from '@/constants/constants';
 import { TABLE_COLUMNS, USERS_PER_PAGE } from '@/constants/dummyData';
 import { TUserSchema } from '@/types/dbTablesTypes';
 
+import { Button } from '../ui/button';
 import { Paginate } from '../ui/Paginate';
 import ToggleColumnDropDown from './ToggleColumnDropDown';
 import UsersTableSearchBar from './UsersTableSearchBar';
@@ -31,8 +32,10 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
 
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(
-    TABLE_COLUMNS.reduce((acc, col) => ({ ...acc, [col]: true }), {}),
+  const [visibleColumns, setVisibleColumns] = useState(() =>
+    Object.fromEntries(
+      USER_TABLE_COLUMNS.map((col) => [col.accessorKey, true]),
+    ),
   );
 
   const toggleColumn = (col: string) => {
@@ -57,15 +60,21 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
   }, [filteredUsers, currentPage]);
 
   const [columnSizing, setColumnSizing] = useState({});
+  const visibleUserTableColumns = useMemo(() => {
+    return USER_TABLE_COLUMNS.filter(
+      (col) => visibleColumns[col.accessorKey] !== false,
+    );
+  }, [visibleColumns]);
+
   const table = useReactTable({
     data: paginatedUsers,
-    columns: USER_TABLE_COLUMNS,
+    columns: visibleUserTableColumns,
     getCoreRowModel: getCoreRowModel(),
     columnResizeMode: 'onChange',
     defaultColumn: {
-      // size: 50,
-      // minSize: 5,
-      maxSize: 400,
+      size: 150,
+      minSize: 100,
+      maxSize: 600,
     },
     state: {
       columnSizing,
@@ -85,17 +94,23 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
   }, [filteredUsers, paginatedUsers]);
 
   return (
-    <Card className='mx-auto mt-4 w-full max-w-[1300px] gap-3 overflow-auto rounded-md border px-4 py-6 sm:px-6'>
+    <Card className='mx-auto mt-4 w-full max-w-screen-xl gap-4 overflow-x-auto rounded-md border px-4 py-6 sm:px-6'>
       <h1 className='mb-4 text-3xl font-bold'>All Users</h1>
 
-      <div className='flex flex-col items-start gap-2 pb-4 sm:flex-row sm:items-center sm:justify-between'>
-        <UsersTableSearchBar
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
+      <div className='flex flex-col items-start gap-2 pb-4 sm:flex-row sm:items-start sm:justify-between'>
+        <div>
+          <Button className='mb-4'>Add User</Button>
+          <UsersTableSearchBar
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <ToggleColumnDropDown
-          columns={TABLE_COLUMNS}
+          columns={USER_TABLE_COLUMNS.map((col) => ({
+            accessorKey: col.accessorKey,
+            header:
+              typeof col.header === 'string' ? col.header : col.accessorKey,
+          }))}
           visibleColumns={visibleColumns}
           toggleColumn={toggleColumn}
         />
@@ -110,7 +125,7 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className={`sticky top-0 z-10 bg-gray-200 dark:bg-zinc-800 ${header.index === 0 ? 'left-0 z-20 bg-inherit' : ''}`}
+                      className={`sticky top-0 z-10 bg-gray-200 dark:bg-zinc-800 ${header.index === 0 ? 'left-0 z-20 bg-gray-200 dark:bg-zinc-800' : ''}`}
                       style={{
                         width: `${header.getSize()}px`,
                         position: 'relative',

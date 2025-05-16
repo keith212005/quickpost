@@ -1,5 +1,3 @@
-import { ColumnDef } from '@tanstack/react-table';
-
 import { StatusTab } from '@/components/tables/StatusTab';
 import { TUserSchema } from '@/types/dbTablesTypes';
 
@@ -48,26 +46,24 @@ export const authErrorMessages: Record<string, string> = {
   WebAuthnVerificationError: 'WebAuthn failed',
 };
 
-export const USER_TABLE_COLUMNS: ColumnDef<TUserSchema>[] = [
+export const USER_TABLE_COLUMNS = [
   {
     accessorKey: 'id',
     header: 'Id',
     enableResizing: true,
-    size: 100,
-    cell: ({ getValue }) => {
+    size: 150,
+    minSize: 100,
+    maxSize: 300,
+    cell: ({ getValue }: { getValue: () => unknown }) => {
       const value = getValue();
-      return (
-        <div className='max-w-[100px] truncate sm:max-w-[150px] md:max-w-[200px]'>
-          {value as string}
-        </div>
-      );
+      return <div className='w-full truncate'>{value as string}</div>;
     },
   },
   {
     accessorKey: 'isActive',
     header: 'Status',
     size: 100,
-    cell: ({ getValue }) => {
+    cell: ({ getValue }: { getValue: () => unknown }) => {
       const isActive = getValue();
       return (
         <div className='flex items-center justify-center'>
@@ -80,40 +76,61 @@ export const USER_TABLE_COLUMNS: ColumnDef<TUserSchema>[] = [
     accessorKey: 'name',
     header: 'Name',
     enableResizing: true,
+    size: 200,
+    minSize: 150,
+    maxSize: 300,
   },
   {
     accessorKey: 'email',
     header: 'Email',
     enableResizing: true,
+    size: 250,
+    minSize: 200,
+    maxSize: 400,
   },
   {
     accessorKey: 'role',
     header: 'Role',
     enableResizing: true,
-    size: 5,
+    size: 100,
+    minSize: 100,
+    maxSize: 300,
   },
   {
     accessorKey: 'isOAuth',
     header: 'isOAuth',
     enableResizing: true,
-    size: 5,
+    size: 100,
+    minSize: 100,
+    maxSize: 300,
   },
   {
     accessorKey: 'image',
     header: 'Image',
     enableResizing: true,
-    size: 5,
-    cell: ({ getValue }) => {
+    size: 200,
+    minSize: 150,
+    maxSize: 400,
+    cell: ({ getValue }: { getValue: () => unknown }) => {
       const value = getValue();
-      return <div className='max-w-[200px] truncate'>{value as string}</div>;
+      return (
+        <div
+          className='w-full max-w-[150px] truncate sm:max-w-[200px] md:max-w-[300px]'
+          title={value as string}
+        >
+          {value as string}
+        </div>
+      );
     },
   },
   {
     accessorKey: 'lastLogin',
     header: 'Last Login',
     enableResizing: true,
-    size: 5,
-    cell: ({ getValue }) => {
+    size: 150,
+    minSize: 100,
+    maxSize: 300,
+    cell: ({ getValue }: { getValue: () => unknown }) => {
       const createdAt = getValue() as Date;
       return createdAt.toLocaleString();
     },
@@ -123,8 +140,10 @@ export const USER_TABLE_COLUMNS: ColumnDef<TUserSchema>[] = [
     accessorKey: 'createdAt',
     header: 'createdAt',
     enableResizing: true,
-    size: 5,
-    cell: ({ getValue }) => {
+    size: 150,
+    minSize: 100,
+    maxSize: 300,
+    cell: ({ getValue }: { getValue: () => unknown }) => {
       const createdAt = getValue() as Date;
       return createdAt.toLocaleString();
     },
@@ -133,8 +152,10 @@ export const USER_TABLE_COLUMNS: ColumnDef<TUserSchema>[] = [
     accessorKey: 'emailVerified',
     header: 'emailVerified',
     enableResizing: true,
-    size: 5,
-    cell: ({ getValue }) => {
+    size: 150,
+    minSize: 100,
+    maxSize: 300,
+    cell: ({ getValue }: { getValue: () => unknown }) => {
       const value = getValue() as Date;
       return value?.toLocaleString();
     },

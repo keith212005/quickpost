@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
 const UsersTableSearchBar = (props: React.ComponentProps<'input'>) => {
@@ -9,10 +8,9 @@ const UsersTableSearchBar = (props: React.ComponentProps<'input'>) => {
       <Input
         type='text'
         placeholder='Filter users...'
-        className='w-1/3'
+        className='md:w-auto'
         {...props}
       />
-      <Button>Add User</Button>
     </div>
   );
 };
