@@ -136,7 +136,7 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
               {paginatedUsers.map((user) => (
                 <TableRow key={user.id} className='h-14 align-middle'>
                   <TableCell className='h-14 w-[50px] text-center align-middle'>
-                    <Actions />
+                    <Actions user={user} />
                   </TableCell>
                 </TableRow>
               ))}

@@ -6,9 +6,14 @@ import {
   DropdownMenuPortal,
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu';
-import { MoreVerticalIcon, Pencil, UserX } from 'lucide-react';
+import { MoreVerticalIcon, Pencil, User2, UserX } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-const Actions = () => {
+import { updateUser } from '@/app/actions/updateUser';
+import { TUserSchema } from '@/types/dbTablesTypes';
+
+const Actions = ({ user }: { user: TUserSchema }) => {
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -27,9 +32,23 @@ const Actions = () => {
             <Pencil className='mr-2 h-4 w-4' />
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem className='hover:bg-muted focus:bg-muted flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none'>
-            <UserX className='mr-2 h-4 w-4' />
-            Deactivate
+          <DropdownMenuItem
+            className='hover:bg-muted focus:bg-muted flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none'
+            onClick={() => {
+              updateUser({
+                userId: user.id,
+                role: user.role,
+                isActive: !user.isActive,
+              });
+              router.refresh();
+            }}
+          >
+            {user.isActive ? (
+              <UserX className='mr-2 h-4 w-4' />
+            ) : (
+              <User2 className='mr-2 h-4 w-4' />
+            )}
+            {user.isActive ? 'Deactivate' : 'Activate'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenuPortal>
