@@ -1,4 +1,5 @@
 'use server';
+
 import { prisma } from '@/lib/db';
 
 export async function toggleUserStatus({
@@ -7,15 +8,15 @@ export async function toggleUserStatus({
 }: {
   userId: string;
   status: boolean;
-}) {
+}): Promise<{ success: boolean; error?: string }> {
   try {
-    const user = await prisma.user.update({
+    await prisma.user.update({
       where: { id: userId },
       data: { isActive: !status },
     });
-    return user;
+    return { success: true };
   } catch (error) {
-    console.error('Failed to toggle status of user:', error);
-    throw new Error('Could not toggle user');
+    console.error('Failed to toggle status of user:', (error as Error).message);
+    return { success: false, error: 'Could not toggle user' };
   }
 }

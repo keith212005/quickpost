@@ -1,6 +1,6 @@
 'use server';
 
-import { UserRole } from '@prisma/client';
+import type { UserRole } from '@prisma/client';
 
 import { prisma } from '@/lib/db';
 
@@ -12,7 +12,11 @@ export async function updateUser({
   userId: string;
   role: UserRole;
   isActive: boolean;
-}) {
+}): Promise<{
+  success: boolean;
+  data?: unknown;
+  error?: string;
+}> {
   try {
     const user = await prisma.user.update({
       where: { id: userId },
@@ -22,10 +26,11 @@ export async function updateUser({
     console.log(`User ${userId} updated successfully.`);
     return { success: true, data: user };
   } catch (error) {
-    console.error(`Failed to update user ${userId}:`, error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Failed to update user ${userId}:`, message);
     return {
       success: false,
-      error: 'An error occurred while updating the user. Please try again.',
+      error: 'Failed to update user.',
     };
   }
 }

@@ -2,8 +2,27 @@
 
 import { prisma } from '@/lib/db';
 
-export const getDashboardStats = async () => {
+type DashboardStatsResult =
+  | {
+      totalPosts: number;
+      totalUsers: number;
+      postsThisMonth: number;
+      activeUsers: number;
+      error?: undefined;
+    }
+  | {
+      totalPosts: number;
+      totalUsers: number;
+      postsThisMonth: number;
+      activeUsers: number;
+      error: string;
+    };
+
+export async function getDashboardStats(): Promise<DashboardStatsResult> {
   try {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
     const [totalPosts, totalUsers, postsThisMonth, activeUsers] =
       await Promise.all([
         prisma.post.count(),
@@ -11,7 +30,7 @@ export const getDashboardStats = async () => {
         prisma.post.count({
           where: {
             createdAt: {
-              gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+              gte: firstDayOfMonth,
             },
           },
         }),
@@ -22,7 +41,12 @@ export const getDashboardStats = async () => {
         }),
       ]);
 
-    return { totalPosts, totalUsers, postsThisMonth, activeUsers };
+    return {
+      totalPosts,
+      totalUsers,
+      postsThisMonth,
+      activeUsers,
+    };
   } catch (error) {
     console.error('Failed to load dashboard stats:', error);
     return {
@@ -33,4 +57,4 @@ export const getDashboardStats = async () => {
       error: 'Failed to fetch dashboard statistics.',
     };
   }
-};
+}

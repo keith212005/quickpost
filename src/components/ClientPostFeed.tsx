@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 
 import { TPostSchema } from '@/types/dbTablesTypes';
@@ -11,28 +12,36 @@ import { Paginate } from './ui/Paginate';
 
 export default function ClientPostFeed() {
   const { data: session } = useSession();
-  const [posts, setPosts] = useState<TPostSchema[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: response, isLoading } = useQuery({
+    queryKey: ['posts', page],
+    queryFn: () => fetch(`/api/posts?page=${page}`).then((res) => res.json()),
+    staleTime: 0,
+  });
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      const res = await fetch(`/api/posts?page=${page}`);
-      const json = await res.json();
-      setPosts(json.data || []);
-      setTotalPages(json.totalPages || 1); // your API must return this
-      setLoading(false);
+    const handler = () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     };
 
-    fetchPosts();
-  }, [page]);
+    window.addEventListener('post-created', handler);
+    return () => window.removeEventListener('post-created', handler);
+  }, [queryClient]);
+
+  const posts: TPostSchema[] = response?.data ?? [];
+  const totalPages: number = response?.totalPages ?? 1;
+
+  const pagination = (
+    <Paginate page={page} totalPages={totalPages} setPage={setPage} />
+  );
+  console.log('Posts response:', response);
 
   return (
     <div className='mx-auto max-w-2xl space-y-6 p-4'>
-      <Paginate page={page} totalPages={totalPages} setPage={setPage} />
-      {loading ? (
+      {pagination}
+      {isLoading ? (
         <PostSkeleton />
       ) : (
         posts.map((post) => (
@@ -46,8 +55,7 @@ export default function ClientPostFeed() {
           />
         ))
       )}
-
-      <Paginate page={page} totalPages={totalPages} setPage={setPage} />
+      {pagination}
     </div>
   );
 }

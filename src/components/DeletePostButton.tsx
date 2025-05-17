@@ -1,6 +1,7 @@
 'use client';
+
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { deletePost } from '@/app/actions/deletedPost';
@@ -23,27 +24,24 @@ type DeletePostButtonProps = {
 };
 
 const DeletePostButton = ({ postId }: DeletePostButtonProps) => {
-  const [isDeleting, setIsDeleting] = React.useState(false);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      await deletePost({ postId });
-      router.refresh();
+  const deleteMutation = useMutation<string, Error, void>({
+    mutationFn: () => deletePost({ postId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
       toast.success('Post deleted successfully');
-    } finally {
-      setIsDeleting(false);
       setIsDialogOpen(false);
-    }
-  };
+    },
+  });
 
   return (
     <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <AlertDialogTrigger asChild>
         <Button variant='destructive'>Delete</Button>
       </AlertDialogTrigger>
+
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -52,10 +50,16 @@ const DeletePostButton = ({ postId }: DeletePostButtonProps) => {
             from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-            {isDeleting ? 'Deleting...' : 'Delete'}
+          <AlertDialogCancel disabled={deleteMutation.status === 'pending'}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => deleteMutation.mutate()}
+            disabled={deleteMutation.status === 'pending'}
+          >
+            {deleteMutation.status === 'pending' ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

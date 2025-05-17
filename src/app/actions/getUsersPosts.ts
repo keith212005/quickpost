@@ -8,8 +8,9 @@ export async function getUsersPosts(): Promise<{
   error?: string;
 }> {
   const session = await auth();
+
   try {
-    const posts: TPostSchema[] = await prisma.post.findMany({
+    const posts = await prisma.post.findMany({
       where: {
         authorId: session?.user?.id,
       },
@@ -18,7 +19,7 @@ export async function getUsersPosts(): Promise<{
         title: true,
         content: true,
         published: true,
-        uploadedAt: true,
+        updatedAt: true,
         createdAt: true,
         author: {
           select: {
@@ -39,7 +40,7 @@ export async function getUsersPosts(): Promise<{
       data: posts,
     };
   } catch (error) {
-    console.error('Failed to fetch posts:', error);
+    console.error('Failed to fetch posts:', (error as Error).message);
     return {
       success: false,
       error: 'Failed to fetch posts.',

@@ -3,8 +3,9 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 
-export async function toggleLike(postId: string) {
+export async function toggleLike(postId: string): Promise<{ liked: boolean }> {
   const session = await auth();
+
   if (!session?.user?.id) {
     throw new Error('Unauthorized');
   }
@@ -12,37 +13,28 @@ export async function toggleLike(postId: string) {
   const userId = session.user.id;
 
   try {
-    const existing = await prisma.like.findUnique({
+    const existingLike = await prisma.like.findUnique({
       where: {
-        userId_postId: {
-          userId,
-          postId,
-        },
+        userId_postId: { userId, postId },
       },
     });
 
-    if (existing) {
+    if (existingLike) {
       await prisma.like.delete({
         where: {
-          userId_postId: {
-            userId,
-            postId,
-          },
+          userId_postId: { userId, postId },
         },
       });
       return { liked: false };
-    } else {
-      await prisma.like.create({
-        data: {
-          userId,
-          postId,
-        },
-      });
-      console.log('👍 Like created for', postId, 'by', userId);
-      return { liked: true };
     }
+
+    await prisma.like.create({
+      data: { userId, postId },
+    });
+
+    return { liked: true };
   } catch (error) {
-    console.error('Error toggling like:', error);
+    console.error('Error toggling like:', (error as Error).message);
     throw new Error('Unable to toggle like');
   }
 }

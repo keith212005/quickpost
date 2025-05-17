@@ -6,6 +6,7 @@ import { auth } from '@/auth';
 import Navbar from '@/components/layout/NavBar';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
+import { ReactQueryProvider } from '@/providers/ReactQueryProvider';
 
 import './globals.css';
 
@@ -43,13 +44,15 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider session={session ?? null}>
-            <div className='bg-background sticky top-0 z-50'>
-              <Navbar />
-            </div>
-            <div className='flex'>
-              <main className='flex-1'>{children}</main>
-            </div>
-            <Toaster position='top-center' />
+            <ReactQueryProvider>
+              <div className='bg-background sticky top-0 z-50'>
+                <Navbar />
+              </div>
+              <div className='flex'>
+                <main className='flex-1'>{children}</main>
+              </div>
+              <Toaster position='top-center' />
+            </ReactQueryProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>

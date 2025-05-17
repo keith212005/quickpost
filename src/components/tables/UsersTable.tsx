@@ -25,8 +25,11 @@ import Actions from './Actions';
 import ToggleColumnDropDown from './ToggleColumnDropDown';
 import UsersTableSearchBar from './UsersTableSearchBar';
 
-const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
-  const users = useMemo(() => userss, [userss]);
+const UsersTable = ({ userList }: { userList: TUserSchema[] }) => {
+  const users = useMemo(
+    () => (Array.isArray(userList) ? userList : []),
+    [userList],
+  );
 
   // State declarations
   const [search, setSearch] = useState('');
@@ -51,7 +54,7 @@ const UsersTable = ({ userss }: { userss: TUserSchema[] }) => {
 
   // Filter users based on search input
   const filteredUsers = useMemo(() => {
-    return users.filter((user) =>
+    return (users ?? []).filter((user) =>
       `${user.name} ${user.email}`.toLowerCase().includes(search.toLowerCase()),
     );
   }, [users, search]);

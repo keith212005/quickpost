@@ -1,7 +1,14 @@
 import { prisma } from '@/lib/db';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
-export async function getAllPosts(take: number = 50, skip: number = 0) {
+type GetAllPostsResult =
+  | { success: true; data: TPostSchema[]; totalCount: number }
+  | { success: false; error: string };
+
+export async function getAllPosts(
+  take = 50,
+  skip = 0,
+): Promise<GetAllPostsResult> {
   try {
     const posts: TPostSchema[] = await prisma.post.findMany({
       take,
@@ -10,10 +17,7 @@ export async function getAllPosts(take: number = 50, skip: number = 0) {
         id: true,
         title: true,
         content: true,
-        published: true,
-        uploadedAt: true,
         createdAt: true,
-        authorId: true,
         author: {
           select: {
             id: true,
@@ -21,14 +25,7 @@ export async function getAllPosts(take: number = 50, skip: number = 0) {
             email: true,
           },
         },
-        likes: {
-          select: {
-            id: true,
-            userId: true,
-            postId: true,
-            createdAt: true,
-          },
-        },
+        likes: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -40,11 +37,10 @@ export async function getAllPosts(take: number = 50, skip: number = 0) {
     return {
       success: true,
       data: posts,
-      totalCount: totalCount,
-      error: undefined,
+      totalCount,
     };
   } catch (error) {
-    console.error('Failed to fetch posts:', error);
+    console.error('Failed to fetch posts:', (error as Error).message);
     return {
       success: false,
       error: 'Failed to fetch posts.',

@@ -9,7 +9,7 @@ const UsersPage = async () => {
   // console.log('Server logs users:', users.length);
   return (
     <div className='bg-background text-foreground min-h-screen px-4 py-6'>
-      <UsersTable userss={users} />
+      <UsersTable userList={users.success ? users.data : []} />
     </div>
   );
 };
