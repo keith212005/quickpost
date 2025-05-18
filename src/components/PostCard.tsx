@@ -14,6 +14,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from '@/components/ui/card';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
@@ -63,6 +64,10 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
         <CardTitle className='text-foreground text-lg font-semibold'>
           {title}
         </CardTitle>
+        <CardDescription className='text-muted-foreground mt-1 text-sm italic'>
+          {content.slice(0, 200)}
+          {content.length > 200 ? '...' : ''}
+        </CardDescription>
         <div className='mt-2 flex items-center gap-3'>
           <Avatar className='h-8 w-8'>
             <AvatarImage
@@ -72,7 +77,11 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
             />
-            <AvatarFallback>
+            <AvatarFallback
+              style={{
+                backgroundColor: `#${intToRGB(hashCode(author?.name || 'U'))}`,
+              }}
+            >
               {author?.name
                 ?.split(' ')
                 .map((n) => n[0])
@@ -105,11 +114,18 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
           {content}
         </div>
 
-        <div className='mt-3 flex flex-wrap gap-2'>
+        {new Date().getTime() - new Date(createdAt).getTime() < 86400000 && (
+          <span className='inline-block rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800'>
+            New
+          </span>
+        )}
+
+        <div className='mt-3 mb-4 flex flex-wrap gap-2'>
           {(post.tags ?? []).map((tag, index) => (
             <span
               key={`${tag}-${index}`}
-              className='bg-accent text-accent-foreground hover:bg-accent/70 rounded-md px-2 py-1 text-xs font-medium shadow-sm transition'
+              className='bg-accent text-accent-foreground hover:bg-muted hover:text-foreground rounded-md px-2 py-1 text-xs font-medium shadow-sm transition'
+              title={`View posts tagged with ${tag}`}
             >
               #{tag}
             </span>
@@ -118,7 +134,7 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
 
         {isLongContent && (
           <button
-            className='text-primary mt-2 text-sm font-medium hover:underline'
+            className='mt-2 text-sm font-medium text-blue-600 hover:underline'
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? 'Show less' : 'Read more'}
@@ -126,11 +142,13 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
         )}
       </CardContent>
 
-      <CardFooter className='text-muted-foreground flex items-center justify-between pt-2 text-sm'>
+      <CardFooter className='text-muted-foreground flex flex-col gap-2 pt-2 text-sm md:flex-row md:items-center md:justify-between'>
         <div className='flex items-center gap-2'>
           {HeartIcon}
           <span>
-            {likes?.length} like{likes?.length !== 1 && 's'}
+            {likes?.length === 0
+              ? 'Be the first to like this'
+              : `${likes?.length} like${likes?.length !== 1 ? 's' : ''}`}
           </span>
         </div>
 
@@ -148,4 +166,17 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
       </CardFooter>
     </Card>
   );
+}
+
+function hashCode(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
+}
+
+function intToRGB(i: number) {
+  const c = (i & 0x00ffffff).toString(16).toUpperCase();
+  return '00000'.substring(0, 6 - c.length) + c;
 }
