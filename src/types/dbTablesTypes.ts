@@ -49,3 +49,11 @@ export const likeSchema = z.object({
   post: z.lazy(() => postSchema),
 });
 export type TLikeSchema = z.infer<typeof likeSchema>;
+
+export const postFormSchema = postSchema.omit({
+  id: true,
+  createdAt: true,
+  author: true,
+});
+
+export type TPostFormSchema = z.infer<typeof postFormSchema>;

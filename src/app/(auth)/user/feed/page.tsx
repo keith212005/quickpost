@@ -1,5 +1,5 @@
 import AddOrEditPostForm from '@/components/AddOrEditPostForm';
-import ClientPostFeed from '@/components/ClientPostFeed';
+import ClientPostFeed from '@/components/AllPostsList';
 
 export default async function FeedPage() {
   return (

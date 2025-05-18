@@ -10,7 +10,7 @@ import PostCard from './PostCard';
 import PostSkeleton from './skeletons/PostSkeleton';
 import { Paginate } from './ui/Paginate';
 
-export default function ClientPostFeed() {
+export default function AllPostsList() {
   const { data: session } = useSession();
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();

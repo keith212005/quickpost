@@ -65,9 +65,20 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
         </CardTitle>
         <div className='mt-2 flex items-center gap-3'>
           <Avatar className='h-8 w-8'>
-            <AvatarImage src={author?.image || ''} alt={author?.name || ''} />
+            <AvatarImage
+              src={author?.image || ''}
+              alt={author?.name || ''}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
             <AvatarFallback>
-              {author?.name?.charAt(0).toUpperCase() || 'U'}
+              {author?.name
+                ?.split(' ')
+                .map((n) => n[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 2) || 'U'}
             </AvatarFallback>
           </Avatar>
           <div className='flex flex-col justify-center'>
@@ -87,7 +98,7 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className='text-foreground/90 mt-2 text-sm leading-relaxed whitespace-pre-wrap'>
+      <CardContent className='text-muted-foreground mt-2 text-base leading-7 font-normal tracking-wide whitespace-pre-wrap'>
         <div
           className={`overflow-hidden ${!isExpanded && isLongContent ? 'line-clamp-5' : ''}`}
         >
@@ -95,9 +106,9 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
         </div>
 
         <div className='mt-3 flex flex-wrap gap-2'>
-          {(post.tags ?? []).map((tag) => (
+          {(post.tags ?? []).map((tag, index) => (
             <span
-              key={tag}
+              key={`${tag}-${index}`}
               className='bg-accent text-accent-foreground hover:bg-accent/70 rounded-md px-2 py-1 text-xs font-medium shadow-sm transition'
             >
               #{tag}
@@ -125,7 +136,12 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
 
         {edit && isAuthor && (
           <div className='ml-auto flex gap-2'>
-            <AddOrEditPostForm postId={id} title={title} content={content} />
+            <AddOrEditPostForm
+              postId={id}
+              title={title}
+              content={content}
+              tags={post.tags}
+            />
             <DeletePostButton postId={id} />
           </div>
         )}

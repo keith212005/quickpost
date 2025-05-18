@@ -18,21 +18,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { PostSchema, PostSchemaType } from '@/schemas/postSchema';
 
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
+import { postFormSchema, TPostFormSchema } from '@/types/dbTablesTypes';
 
-type AddOrEditPostFormProps = {
+type AddOrEditPostFormProps = Partial<TPostFormSchema> & {
   postId?: string;
-  title?: string;
-  content?: string;
 };
 
 const AddOrEditPostForm = ({
   postId,
   title,
   content,
+  tags,
 }: AddOrEditPostFormProps = {}) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -81,9 +80,13 @@ const AddOrEditPostForm = ({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<PostSchemaType>({
-    resolver: zodResolver(PostSchema),
-    defaultValues: { title: title || '', content: content || '' },
+  } = useForm<TPostFormSchema>({
+    resolver: zodResolver(postFormSchema),
+    defaultValues: {
+      title: title || '',
+      content: content || '',
+      tags: Array.isArray(tags) ? tags : [tags ?? ''],
+    },
   });
 
   const createMutation = useMutation({
@@ -99,12 +102,31 @@ const AddOrEditPostForm = ({
     },
   });
 
-  const onSubmit = async (data: PostSchemaType) => {
+  const onSubmit = async (data: TPostFormSchema) => {
+    console.log('data >>>>>', data.tags);
+    console.log('data >>>>>', typeof data.tags);
+
     setLoading(true);
+
+    const normalizedTags =
+      typeof data.tags === 'string'
+        ? (data.tags as string)
+            .split(',')
+            .map((tag) => tag.trim().toLowerCase())
+            .filter(Boolean)
+        : Array.isArray(data.tags)
+          ? data.tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean)
+          : [];
+
+    const postData = {
+      title: data.title,
+      content: data.content,
+      tags: normalizedTags,
+    };
 
     if (isEdit) {
       try {
-        const response = await updatePost({ postId: postId!, ...data });
+        const response = await updatePost({ postId: postId!, ...postData });
         if (!response?.success) {
           setLoading(false);
           return;
@@ -123,7 +145,7 @@ const AddOrEditPostForm = ({
     }
 
     try {
-      await createMutation.mutateAsync(data);
+      await createMutation.mutateAsync(postData);
     } catch (error) {
       console.error('Failed to create post:', error);
       setLoading(false);
@@ -143,7 +165,9 @@ const AddOrEditPostForm = ({
         </div>
         <form
           key={postId || 'new'}
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmit, (errors) => {
+            console.warn('Form validation failed:', errors);
+          })}
           className='space-y-4'
         >
           <DialogHeader>
@@ -168,6 +192,28 @@ const AddOrEditPostForm = ({
           {errors.content && (
             <p className='text-sm text-red-500'>{errors.content.message}</p>
           )}
+          <div>
+            <Input
+              placeholder='e.g. react, typescript, webdev'
+              {...register('tags', {
+                setValueAs: (v) =>
+                  typeof v === 'string'
+                    ? v
+                        .split(',')
+                        .map((tag) => tag.trim().toLowerCase())
+                        .filter(Boolean)
+                    : [],
+              })}
+              aria-label='Post Tags'
+              className='text-sm'
+            />
+            <p className='text-muted-foreground mt-1 text-xs'>
+              Separate tags with commas (e.g. react, typescript, ui)
+            </p>
+            {errors.tags && (
+              <p className='mt-1 text-sm text-red-500'>{errors.tags.message}</p>
+            )}
+          </div>
           <DialogFooter>
             <Button
               type='submit'

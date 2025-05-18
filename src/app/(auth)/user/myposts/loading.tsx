@@ -3,6 +3,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function FeedLoading() {
   return (
     <div className='mx-auto max-w-2xl space-y-4 p-4'>
+      <Skeleton className='mx-auto mb-4 h-8 w-48' />
+
       {[...Array(4)].map((_, i) => (
         <div key={i} className='rounded-md border p-4'>
           <Skeleton className='mb-2 h-6 w-1/2' />

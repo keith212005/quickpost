@@ -1,7 +1,7 @@
 import React from 'react';
 
 import AddOrEditPostForm from '@/components/AddOrEditPostForm';
-import ClientPostFeed from '@/components/ClientPostFeed';
+import ClientPostFeed from '@/components/AllPostsList';
 
 const AdminPostPage = async () => {
   return (

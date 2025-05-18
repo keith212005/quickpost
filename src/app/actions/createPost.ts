@@ -4,27 +4,28 @@ import type { Post } from '@prisma/client';
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
-import { PostSchemaType } from '@/schemas/postSchema';
+import { TPostFormSchema, TPostSchema } from '@/types/dbTablesTypes';
 
 type CreatePostResult =
   | { success: true; post: Post }
   | { success: false; error: string };
 
 export async function createPost(
-  formData: PostSchemaType,
+  formData: TPostFormSchema,
 ): Promise<CreatePostResult> {
   const session = await auth();
   if (!session?.user) {
     return { success: false, error: 'Unauthorized' };
   }
 
-  const { title, content } = formData;
+  const { title, content, tags } = formData;
 
   try {
     const post = await prisma.post.create({
       data: {
         title,
         content,
+        tags,
         authorId: session.user.id,
       },
     });

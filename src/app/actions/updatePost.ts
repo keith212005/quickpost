@@ -9,6 +9,7 @@ type UpdatePostInput = {
   postId: string;
   title: string;
   content: string;
+  tags: string[];
 };
 
 type UpdatePostResult =
@@ -19,6 +20,7 @@ export async function updatePost({
   postId,
   title,
   content,
+  tags,
 }: UpdatePostInput): Promise<UpdatePostResult> {
   const session = await auth();
   if (!session) {
@@ -31,6 +33,7 @@ export async function updatePost({
       data: {
         title,
         content,
+        tags,
       },
     });
 
