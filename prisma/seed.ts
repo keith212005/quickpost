@@ -9,14 +9,14 @@ async function main() {
   console.log('Seeding...');
 
   // 1. Create Users
-  const userCount = 6;
+  const userCount = 50;
   const users = await Promise.all(
     Array.from({ length: userCount }).map(() =>
       prisma.user.create({
         data: {
-          name: faker.internet.userName(),
-          firstName: faker.name.firstName(),
-          lastName: faker.name.lastName(),
+          name: faker.internet.username(),
+          firstName: faker.person.firstName(),
+          lastName: faker.person.lastName(),
           email: faker.internet.email(),
           password: faker.internet.password(),
           isOAuth: false,
@@ -42,6 +42,10 @@ async function main() {
           content: faker.lorem.paragraphs(1),
           published: true,
           authorId: user.id,
+          tags: Array.from(
+            { length: faker.number.int({ min: 1, max: 3 }) },
+            () => faker.hacker.noun().toLowerCase(),
+          ),
         },
       });
 
@@ -51,6 +55,7 @@ async function main() {
           id: user.id,
           name: user.name,
           email: user.email,
+          image: user.image,
         },
       });
     }

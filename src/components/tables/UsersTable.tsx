@@ -1,5 +1,6 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { lazy, Suspense, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   flexRender,
   getCoreRowModel,
@@ -16,24 +17,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { USER_TABLE_COLUMNS } from '@/constants/constants';
-import { USERS_PER_PAGE } from '@/constants/dummyData';
 import { TUserSchema } from '@/types/dbTablesTypes';
 
 import { Button } from '../ui/button';
-import { Paginate } from '../ui/Paginate';
-import Actions from './Actions';
-import ToggleColumnDropDown from './ToggleColumnDropDown';
+const LazyPaginate = lazy(async () => ({
+  default: (await import('../ui/Paginate')).Paginate,
+}));
 import UsersTableSearchBar from './UsersTableSearchBar';
 
-const UsersTable = ({ userList }: { userList: TUserSchema[] }) => {
-  const users = useMemo(
-    () => (Array.isArray(userList) ? userList : []),
-    [userList],
-  );
+const LazyActions = lazy(() => import('./Actions'));
+const LazyToggleColumnDropDown = lazy(() => import('./ToggleColumnDropDown'));
 
-  // State declarations
-  const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+const UsersTable = () => {
+  // Configuration constants
   const [visibleColumns, setVisibleColumns] = useState(() =>
     Object.fromEntries(
       USER_TABLE_COLUMNS.map((col) => [
@@ -43,6 +39,20 @@ const UsersTable = ({ userList }: { userList: TUserSchema[] }) => {
     ),
   );
   const [columnSizing, setColumnSizing] = useState({});
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  // Data fetching
+  const { isPending, data } = useQuery({
+    queryKey: ['users', page],
+    queryFn: () =>
+      fetch(`/api/getAllUsers?page=${page}`).then((res) => res.json()),
+    staleTime: 0,
+  });
+
+  const users: TUserSchema[] = useMemo(() => {
+    return data?.data ?? [];
+  }, [data]);
 
   // Toggle visibility of columns
   const toggleColumn = (col: string) => {
@@ -54,28 +64,25 @@ const UsersTable = ({ userList }: { userList: TUserSchema[] }) => {
 
   // Filter users based on search input
   const filteredUsers = useMemo(() => {
-    return (users ?? []).filter((user) =>
+    return users.filter((user) =>
       `${user.name} ${user.email}`.toLowerCase().includes(search.toLowerCase()),
     );
   }, [users, search]);
 
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
+  // Calculate total pages from API
+  const totalPages = data?.totalPages ?? 1;
 
   // Extract visible columns based on visibility state
-  const visibleUserTableColumns = useMemo(() => {
-    return USER_TABLE_COLUMNS.filter(
-      (col) => visibleColumns[col.accessorKey] !== false,
-    );
-  }, [visibleColumns]);
+  const visibleUserTableColumns = useMemo(
+    () =>
+      USER_TABLE_COLUMNS.filter(
+        (col) => visibleColumns[col.accessorKey] !== false,
+      ),
+    [visibleColumns],
+  );
 
-  // Paginate filtered users
-  const paginatedUsers = useMemo(() => {
-    return filteredUsers.slice(
-      (currentPage - 1) * USERS_PER_PAGE,
-      currentPage * USERS_PER_PAGE,
-    );
-  }, [filteredUsers, currentPage]);
+  // Pagination handled on server, use filteredUsers directly
+  const paginatedUsers = filteredUsers;
 
   // React table instance
   const table = useReactTable({
@@ -96,25 +103,28 @@ const UsersTable = ({ userList }: { userList: TUserSchema[] }) => {
 
   // Reset current page if it exceeds total pages
   React.useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(1);
+    if (page > totalPages) {
+      setPage(1);
     }
-  }, [totalPages, currentPage]);
+  }, [totalPages, page]);
 
-  return (
-    <Card className='mx-auto mt-4 w-full max-w-screen-xl gap-4 rounded-md border px-4 py-6 sm:px-6'>
-      <h1 className='mb-4 text-3xl font-bold'>All Users</h1>
-
-      {/* Search and Add User Controls */}
-      <div className='flex flex-col items-start gap-2 pb-4 sm:flex-row sm:items-start sm:justify-between'>
-        <div>
-          <Button className='mb-4'>Add User</Button>
-          <UsersTableSearchBar
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <ToggleColumnDropDown
+  const SearchAndAddUserControls = (
+    <div className='flex flex-col items-start gap-2 pb-4 sm:flex-row sm:items-start sm:justify-between'>
+      <div>
+        <Button className='mb-4'>Add User</Button>
+        <UsersTableSearchBar
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+      <Suspense
+        fallback={
+          <div className='text-muted-foreground text-sm'>
+            Loading columns...
+          </div>
+        }
+      >
+        <LazyToggleColumnDropDown
           columns={USER_TABLE_COLUMNS.map((col) => ({
             accessorKey: col.accessorKey,
             header:
@@ -123,31 +133,51 @@ const UsersTable = ({ userList }: { userList: TUserSchema[] }) => {
           visibleColumns={visibleColumns}
           toggleColumn={toggleColumn}
         />
-      </div>
+      </Suspense>
+    </div>
+  );
 
-      {/* Table with fixed Action column and scrollable content */}
+  const FixedActionColumn = (
+    <div className='sticky left-0 z-30 border-r bg-white dark:bg-zinc-900'>
+      <Table>
+        <TableHeader>
+          <TableRow className='h-14 align-middle'>
+            <TableHead className='w-[50px] text-center'>Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {paginatedUsers.map((user) => (
+            <TableRow key={user.id} className='h-14 align-middle'>
+              <TableCell className='h-14 w-[50px] text-center align-middle'>
+                <Suspense fallback={<div className='text-center'>...</div>}>
+                  <LazyActions user={user} />
+                </Suspense>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+
+  if (isPending) {
+    return (
+      <Card className='mx-auto mt-4 w-full max-w-screen-xl rounded-md border px-4 py-6 sm:px-6'>
+        <h1 className='mb-4 text-3xl font-bold'>All Users</h1>
+        <p className='text-center text-gray-500'>Loading users...</p>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className='mx-auto mt-4 w-full max-w-screen-xl gap-4 rounded-md border px-4 py-6 sm:px-6'>
+      <h1 className='mb-4 text-3xl font-bold'>All Users</h1>
+
+      {SearchAndAddUserControls}
+
       <div className='flex w-full overflow-x-auto'>
-        {/* Fixed Action Column */}
-        <div className='sticky left-0 z-30 border-r bg-white dark:bg-zinc-900'>
-          <Table>
-            <TableHeader>
-              <TableRow className='h-14 align-middle'>
-                <TableHead className='w-[50px] text-center'>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedUsers.map((user) => (
-                <TableRow key={user.id} className='h-14 align-middle'>
-                  <TableCell className='h-14 w-[50px] text-center align-middle'>
-                    <Actions user={user} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        {FixedActionColumn}
 
-        {/* Scrollable Table */}
         <div className='min-w-max'>
           <Table className='min-w-full table-auto'>
             <TableHeader>
@@ -212,12 +242,15 @@ const UsersTable = ({ userList }: { userList: TUserSchema[] }) => {
         </div>
       </div>
 
-      {/* Pagination Controls */}
-      <Paginate
-        page={currentPage}
-        totalPages={totalPages}
-        setPage={setCurrentPage}
-      />
+      <Suspense
+        fallback={
+          <div className='text-muted-foreground text-center'>
+            Loading pagination...
+          </div>
+        }
+      >
+        <LazyPaginate page={page} totalPages={totalPages} setPage={setPage} />
+      </Suspense>
     </Card>
   );
 };

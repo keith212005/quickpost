@@ -2,15 +2,20 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
-export async function getUsersPosts(): Promise<{
-  success: boolean;
-  data?: TPostSchema[];
-  error?: string;
-}> {
+type GetAllUsersResult =
+  | { success: true; data: TPostSchema[]; totalCount: number }
+  | { success: false; error: string };
+
+export async function getMyPosts(
+  take = 50,
+  skip = 0,
+): Promise<GetAllUsersResult> {
   const session = await auth();
 
   try {
     const posts = await prisma.post.findMany({
+      take,
+      skip,
       where: {
         authorId: session?.user?.id,
       },
@@ -38,6 +43,7 @@ export async function getUsersPosts(): Promise<{
     return {
       success: true,
       data: posts,
+      totalCount: posts.length,
     };
   } catch (error) {
     console.error('Failed to fetch posts:', (error as Error).message);

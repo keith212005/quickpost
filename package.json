@@ -12,7 +12,8 @@
     "resetdb": "npx prisma db execute --file ./drop-all-tables.sql --schema=./prisma/schema.prisma",
     "seed": "npx ts-node --project tsconfig.seed.json prisma/seed.ts",
     "reset": "ts-node --project tsconfig.seed.json scripts/reset-and-seed.ts",
-    "studio": "npx prisma studio"
+    "studio": "npx prisma studio",
+    "seed2": "npx prisma db seed"
   },
   "prisma": {
     "seed": "ts-node --project tsconfig.seed.json prisma/seed.ts"

@@ -1,16 +1,16 @@
 'use client';
 
-import { startTransition, useState } from 'react';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Heart } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
 import { toggleLike } from '@/app/actions/toggleLike';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -29,84 +29,103 @@ type PostCardProps = {
 export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
   const { id, title, content, likes, author, createdAt } = post;
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
-  const router = useRouter();
   const handleToggleLike = async () => {
     try {
-      startTransition(() => {
-        toggleLike(post.id); // this should be imported from a server action
-      });
-      router.refresh();
+      await toggleLike(id);
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     } catch (error) {
       console.error('Error toggling like:', error);
     }
   };
 
   const [isExpanded, setIsExpanded] = useState(false);
-  const maxLines = 5;
-  const isLongContent = content.split('\n').length > maxLines;
+  const maxLines: number = 5;
+  const isLongContent: boolean = content.split('\n').length > maxLines;
+  const isAuthor = session?.user?.id === author?.id;
+
+  const HeartIcon = (
+    <motion.div
+      whileTap={{ scale: 1.3 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+    >
+      <Heart
+        className={`h-4 w-4 cursor-pointer text-red-500 ${isLikedByUser ? 'fill-red-500' : ''}`}
+        onClick={handleToggleLike}
+      />
+    </motion.div>
+  );
 
   return (
-    <Card>
-      <CardHeader className='space-y-2'>
-        <CardTitle className='text-xl leading-snug font-semibold'>
+    <Card className='border-muted bg-background rounded-lg border shadow-sm transition-shadow hover:shadow-md'>
+      <CardHeader className='pb-1'>
+        <CardTitle className='text-foreground text-lg font-semibold'>
           {title}
         </CardTitle>
-        <CardDescription className='text-muted-foreground text-sm'>
-          {author?.name ? `By ${author.name} • ` : ''}
-          {createdAt.toLocaleString()}
-        </CardDescription>
+        <div className='mt-2 flex items-center gap-3'>
+          <Avatar className='h-8 w-8'>
+            <AvatarImage src={author?.image || ''} alt={author?.name || ''} />
+            <AvatarFallback>
+              {author?.name?.charAt(0).toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <div className='flex flex-col justify-center'>
+            <div className='text-foreground text-sm font-medium'>
+              {author?.name}
+            </div>
+            <time
+              className='text-muted-foreground text-xs'
+              dateTime={new Date(createdAt).toISOString()}
+            >
+              {new Date(createdAt).toLocaleString(undefined, {
+                dateStyle: 'long',
+                timeStyle: 'short',
+              })}
+            </time>
+          </div>
+        </div>
       </CardHeader>
 
-      <CardContent className='prose dark:prose-invert max-w-none text-sm leading-relaxed text-gray-700 dark:text-gray-300'>
-        <pre
-          className={`break-words whitespace-pre-wrap ${
-            !isExpanded && isLongContent ? 'line-clamp-[5]' : ''
-          }`}
+      <CardContent className='text-foreground/90 mt-2 text-sm leading-relaxed whitespace-pre-wrap'>
+        <div
+          className={`overflow-hidden ${!isExpanded && isLongContent ? 'line-clamp-5' : ''}`}
         >
           {content}
-        </pre>
+        </div>
+
+        <div className='mt-3 flex flex-wrap gap-2'>
+          {(post.tags ?? []).map((tag) => (
+            <span
+              key={tag}
+              className='bg-accent text-accent-foreground hover:bg-accent/70 rounded-md px-2 py-1 text-xs font-medium shadow-sm transition'
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+
         {isLongContent && (
           <button
-            className='mt-2 text-sm text-blue-500 hover:underline'
+            className='text-primary mt-2 text-sm font-medium hover:underline'
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? 'Show less' : 'Read more'}
           </button>
         )}
       </CardContent>
-      <CardFooter className='flex items-center justify-between text-sm text-gray-600 dark:text-gray-300'>
+
+      <CardFooter className='text-muted-foreground flex items-center justify-between pt-2 text-sm'>
         <div className='flex items-center gap-2'>
-          {isLikedByUser ? (
-            <motion.div
-              whileTap={{ scale: 1.3 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <Heart
-                className='h-4 w-4 cursor-pointer fill-red-500 text-red-500'
-                onClick={handleToggleLike}
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              whileTap={{ scale: 1.3 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <Heart
-                className='h-4 w-4 cursor-pointer text-red-500'
-                onClick={handleToggleLike}
-              />
-            </motion.div>
-          )}
+          {HeartIcon}
           <span>
             {likes?.length} like{likes?.length !== 1 && 's'}
           </span>
         </div>
-        {edit && (
+
+        {edit && isAuthor && (
           <div className='ml-auto flex gap-2'>
-            {session?.user?.id === author?.id && (
-              <AddOrEditPostForm postId={id} title={title} content={content} />
-            )}
+            <AddOrEditPostForm postId={id} title={title} content={content} />
             <DeletePostButton postId={id} />
           </div>
         )}

@@ -23,8 +23,10 @@ export async function getAllPosts(
             id: true,
             name: true,
             email: true,
+            image: true,
           },
         },
+        tags: true,
         likes: true,
       },
       orderBy: {

@@ -1,15 +1,16 @@
-import React from 'react';
+'use client';
+import React, { Suspense } from 'react';
 
-import { getAllUsers } from '@/app/actions/getAllUsers';
 import UsersTable from '@/components/tables/UsersTable';
 
-const UsersPage = async () => {
-  const users = await getAllUsers();
+import UsersTableSkeleton from './loading';
 
-  // console.log('Server logs users:', users.length);
+const UsersPage = () => {
   return (
     <div className='bg-background text-foreground min-h-screen px-4 py-6'>
-      <UsersTable userList={users.success ? users.data : []} />
+      <Suspense fallback={<UsersTableSkeleton />}>
+        <UsersTable />
+      </Suspense>
     </div>
   );
 };

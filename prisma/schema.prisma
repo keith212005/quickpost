@@ -38,6 +38,7 @@ model Post {
     updatedAt DateTime @default(now()) @updatedAt
     createdAt DateTime @default(now())
     authorId  String?
+    tags      String[] @default([])
     likes     Like[]
     author    User?    @relation(fields: [authorId], references: [id])
 

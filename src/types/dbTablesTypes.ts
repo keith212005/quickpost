@@ -12,8 +12,10 @@ export const postSchema = z.object({
       id: z.string(),
       name: z.string(),
       email: z.string().email(),
+      image: z.string().nullable(),
     })
     .nullable(),
+  tags: z.array(z.string()).optional(),
   likes: z.array(z.any()).optional(),
 });
 export type TPostSchema = z.infer<typeof postSchema>;

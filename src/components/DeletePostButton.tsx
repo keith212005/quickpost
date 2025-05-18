@@ -4,7 +4,7 @@ import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { deletePost } from '@/app/actions/deletedPost';
+import { deletePost, DeletePostResult } from '@/app/actions/deletePost';
 
 import {
   AlertDialog,
@@ -27,14 +27,19 @@ const DeletePostButton = ({ postId }: DeletePostButtonProps) => {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const queryClient = useQueryClient();
 
-  const deleteMutation = useMutation<string, Error, void>({
+  const deleteMutation = useMutation<DeletePostResult, Error, void>({
     mutationFn: () => deletePost({ postId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       toast.success('Post deleted successfully');
       setIsDialogOpen(false);
     },
+    onError: () => {
+      toast.error('Failed to delete post');
+    },
   });
+
+  const isDeleting = deleteMutation.status === 'pending';
 
   return (
     <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -52,14 +57,12 @@ const DeletePostButton = ({ postId }: DeletePostButtonProps) => {
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={deleteMutation.status === 'pending'}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => deleteMutation.mutate()}
-            disabled={deleteMutation.status === 'pending'}
+            disabled={isDeleting}
           >
-            {deleteMutation.status === 'pending' ? 'Deleting...' : 'Delete'}
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
