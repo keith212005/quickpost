@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 
+import { usePaginatedQuery } from '@/hooks/usePaginatedQuery';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
 import PostCard from './PostCard';
@@ -15,11 +16,11 @@ export default function AllPostsList() {
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
 
-  const { data: response, isLoading } = useQuery({
-    queryKey: ['posts', page],
-    queryFn: () => fetch(`/api/posts?page=${page}`).then((res) => res.json()),
-    staleTime: 0,
-  });
+  const { isPending, data: response } = usePaginatedQuery(
+    ['posts', page],
+    () => fetch(`/api/posts?page=${page}`).then((res) => res.json()),
+    page,
+  );
 
   useEffect(() => {
     const handler = () => {
@@ -36,12 +37,11 @@ export default function AllPostsList() {
   const pagination = (
     <Paginate page={page} totalPages={totalPages} setPage={setPage} />
   );
-  console.log('Posts response:', response);
 
   return (
     <div className='mx-auto max-w-2xl space-y-6 p-4'>
       {pagination}
-      {isLoading ? (
+      {isPending ? (
         <PostSkeleton />
       ) : (
         posts.map((post) => (

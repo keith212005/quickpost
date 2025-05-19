@@ -17,6 +17,7 @@ export const postSchema = z.object({
     .nullable(),
   tags: z.array(z.string()).optional(),
   likes: z.array(z.any()).optional(),
+  flags: z.array(z.lazy(() => flagSchema)).optional(),
 });
 export type TPostSchema = z.infer<typeof postSchema>;
 
@@ -36,6 +37,7 @@ export const userSchema = z.object({
   emailVerified: z.date().nullable(),
   posts: z.array(z.lazy(() => postSchema)).nullable(),
   likes: z.array(z.lazy(() => postSchema)).nullable(),
+  flags: z.array(z.lazy(() => flagSchema)).optional(),
 });
 export type TUserSchema = z.infer<typeof userSchema>;
 
@@ -49,6 +51,26 @@ export const likeSchema = z.object({
   post: z.lazy(() => postSchema),
 });
 export type TLikeSchema = z.infer<typeof likeSchema>;
+
+interface FlagSchema {
+  id: string;
+  reason: string;
+  postId: string;
+  userId: string;
+  createdAt: Date;
+  post: TPostSchema;
+  user: TUserSchema;
+}
+export const flagSchema: z.ZodType<FlagSchema> = z.object({
+  id: z.string(),
+  reason: z.string(),
+  postId: z.string(),
+  userId: z.string(),
+  createdAt: z.date(),
+  post: z.lazy(() => postSchema),
+  user: z.lazy(() => userSchema),
+});
+export type TFlagSchema = z.infer<typeof flagSchema>;
 
 export const postFormSchema = postSchema.omit({
   id: true,

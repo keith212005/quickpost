@@ -128,8 +128,15 @@ export const USER_TABLE_COLUMNS = [
     minSize: 100,
     maxSize: 300,
     cell: ({ getValue }: { getValue: () => unknown }) => {
-      const value = getValue() as Date;
-      return value?.toLocaleString();
+      const value = getValue() as Date | string;
+      const date = typeof value === 'string' ? new Date(value) : value;
+      return date?.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
     },
   },
 
@@ -141,8 +148,15 @@ export const USER_TABLE_COLUMNS = [
     minSize: 100,
     maxSize: 300,
     cell: ({ getValue }: { getValue: () => unknown }) => {
-      const value = getValue() as Date;
-      return value?.toLocaleString();
+      const value = getValue() as Date | string;
+      const date = typeof value === 'string' ? new Date(value) : value;
+      return date?.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
     },
   },
   {
@@ -153,8 +167,15 @@ export const USER_TABLE_COLUMNS = [
     minSize: 100,
     maxSize: 300,
     cell: ({ getValue }: { getValue: () => unknown }) => {
-      const value = getValue() as Date;
-      return value?.toLocaleString();
+      const value = getValue() as Date | string;
+      const date = typeof value === 'string' ? new Date(value) : value;
+      return date?.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
     },
   },
   {

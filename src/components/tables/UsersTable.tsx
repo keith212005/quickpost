@@ -1,6 +1,5 @@
 'use client';
 import React, { lazy, Suspense, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import {
   flexRender,
   getCoreRowModel,
@@ -23,6 +22,9 @@ import { Button } from '../ui/button';
 const LazyPaginate = lazy(async () => ({
   default: (await import('../ui/Paginate')).Paginate,
 }));
+import UsersTableSkeleton from '@/app/(auth)/admin/users/loading';
+import { usePaginatedQuery } from '@/hooks/usePaginatedQuery';
+
 import UsersTableSearchBar from './UsersTableSearchBar';
 
 const LazyActions = lazy(() => import('./Actions'));
@@ -43,12 +45,12 @@ const UsersTable = () => {
   const [page, setPage] = useState(1);
 
   // Data fetching
-  const { isPending, data } = useQuery({
-    queryKey: ['users', page],
-    queryFn: () =>
-      fetch(`/api/getAllUsers?page=${page}`).then((res) => res.json()),
-    staleTime: 0,
-  });
+
+  const { isPending, data } = usePaginatedQuery(
+    ['users'],
+    () => fetch(`/api/getAllUsers?page=${page}`).then((res) => res.json()),
+    page,
+  );
 
   const users: TUserSchema[] = useMemo(() => {
     return data?.data ?? [];
@@ -103,6 +105,7 @@ const UsersTable = () => {
 
   // Reset current page if it exceeds total pages
   React.useEffect(() => {
+    console.log('page', page, 'totalPages', totalPages);
     if (page > totalPages) {
       setPage(1);
     }
@@ -161,12 +164,7 @@ const UsersTable = () => {
   );
 
   if (isPending) {
-    return (
-      <Card className='mx-auto mt-4 w-full max-w-screen-xl rounded-md border px-4 py-6 sm:px-6'>
-        <h1 className='mb-4 text-3xl font-bold'>All Users</h1>
-        <p className='text-center text-gray-500'>Loading users...</p>
-      </Card>
-    );
+    return <UsersTableSkeleton />;
   }
 
   return (

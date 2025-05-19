@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Heart } from 'lucide-react';
-import { motion } from 'motion/react';
 import { useSession } from 'next-auth/react';
 
 import { toggleLike } from '@/app/actions/toggleLike';
@@ -11,15 +9,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from '@/components/ui/card';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
 import AddOrEditPostForm from './AddOrEditPostForm';
 import DeletePostButton from './DeletePostButton';
+import { HeartButton } from './HeartButton';
 
 type PostCardProps = {
   post: TPostSchema;
@@ -45,18 +44,6 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
   const maxLines: number = 5;
   const isLongContent: boolean = content.split('\n').length > maxLines;
   const isAuthor = session?.user?.id === author?.id;
-
-  const HeartIcon = (
-    <motion.div
-      whileTap={{ scale: 1.3 }}
-      transition={{ type: 'spring', stiffness: 300 }}
-    >
-      <Heart
-        className={`h-4 w-4 cursor-pointer text-red-500 ${isLikedByUser ? 'fill-red-500' : ''}`}
-        onClick={handleToggleLike}
-      />
-    </motion.div>
-  );
 
   return (
     <Card className='border-muted bg-background rounded-lg border shadow-sm transition-shadow hover:shadow-md'>
@@ -144,7 +131,10 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
 
       <CardFooter className='text-muted-foreground flex flex-col gap-2 pt-2 text-sm md:flex-row md:items-center md:justify-between'>
         <div className='flex items-center gap-2'>
-          {HeartIcon}
+          <HeartButton
+            isLikedByUser={isLikedByUser ?? false}
+            onClick={handleToggleLike}
+          />
           <span>
             {likes?.length === 0
               ? 'Be the first to like this'

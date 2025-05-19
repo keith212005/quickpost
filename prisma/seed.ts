@@ -81,6 +81,25 @@ async function main() {
     }
   }
 
+  // 4. Create Flags
+  for (const post of posts) {
+    const shouldFlag = faker.datatype.boolean();
+    if (shouldFlag) {
+      const flagger = faker.helpers.arrayElement(users);
+      try {
+        await prisma.flag.create({
+          data: {
+            postId: post.id,
+            userId: flagger.id,
+            reason: faker.lorem.sentence(),
+          },
+        });
+      } catch (e) {
+        console.log('Flag creation error:', e);
+      }
+    }
+  }
+
   console.log('✅ Done seeding!');
 }
 
