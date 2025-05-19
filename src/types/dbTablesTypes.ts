@@ -17,7 +17,7 @@ export const postSchema = z.object({
     .nullable(),
   tags: z.array(z.string()).optional(),
   likes: z.array(z.any()).optional(),
-  flags: z.array(z.lazy(() => flagSchema)).optional(),
+  flags: z.array(z.any()).optional(),
 });
 export type TPostSchema = z.infer<typeof postSchema>;
 

@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
-import PostCard from './PostCard';
+import PostCard from './PostCard/PostCard';
 import PostSkeleton from './skeletons/PostSkeleton';
 import { Paginate } from './ui/Paginate';
 
@@ -38,6 +38,8 @@ export default function AllPostsList() {
     <Paginate page={page} totalPages={totalPages} setPage={setPage} />
   );
 
+  const isAdmin = session?.user?.role === 'admin';
+
   return (
     <div className='mx-auto max-w-2xl space-y-6 p-4'>
       {pagination}
@@ -48,7 +50,7 @@ export default function AllPostsList() {
           <PostCard
             key={post.id}
             post={post}
-            edit={session?.user?.id === post.author?.id}
+            edit={isAdmin || session?.user?.id === post.author?.id}
             isLikedByUser={post.likes?.some(
               (like) => like.userId === session?.user?.id,
             )}

@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
-import PostCard from './PostCard';
+import PostCard from './PostCard/PostCard';
 import PostSkeleton from './skeletons/PostSkeleton';
 import { Paginate } from './ui/Paginate';
 

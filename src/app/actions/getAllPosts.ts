@@ -28,6 +28,17 @@ export async function getAllPosts(
         },
         tags: true,
         likes: true,
+        flags: {
+          select: {
+            id: true,
+            reason: true,
+            createdAt: true,
+            userId: true,
+            postId: true,
+            post: true,
+            user: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',

@@ -18,10 +18,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { postFormSchema, TPostFormSchema } from '@/types/dbTablesTypes';
 
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
-import { postFormSchema, TPostFormSchema } from '@/types/dbTablesTypes';
 
 type AddOrEditPostFormProps = Partial<TPostFormSchema> & {
   postId?: string;
