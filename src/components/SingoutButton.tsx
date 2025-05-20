@@ -15,7 +15,7 @@ export const SignOutButton = ({ onClick }: Props) => {
     <button
       onClick={() => {
         onClick?.();
-        signOut();
+        signOut({ callbackUrl: '/signin?loggedOut=true' });
       }}
       className='flex items-center gap-3 rounded-lg px-4 py-2 transition hover:bg-gray-200 dark:text-white hover:dark:bg-gray-700'
     >

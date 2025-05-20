@@ -9,10 +9,16 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // If session is missing or expired, redirect to signin
+  const isLoggingOut = request.nextUrl.searchParams.get('loggedOut');
+
   if (!session || !session.user) {
     const url = request.nextUrl.clone();
     url.pathname = '/signin';
-    url.searchParams.set('error', 'Session expired. Please sign in again.');
+
+    if (!isLoggingOut) {
+      url.searchParams.set('error', 'Session expired. Please sign in again.');
+    }
+
     return NextResponse.redirect(url);
   }
 
