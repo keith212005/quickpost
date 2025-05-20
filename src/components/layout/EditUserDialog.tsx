@@ -4,10 +4,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { UserRole } from '@prisma/client';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 
-import { updateUser } from '@/app/actions/updateUser';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -37,15 +34,15 @@ type EditUserDialogProps = {
   isOpen: boolean;
   onClose: () => void;
   user: TUserSchema;
+  onSubmit: (data: FormData) => void;
 };
 
 export const EditUserDialog = ({
   isOpen,
   onClose,
   user,
+  onSubmit,
 }: EditUserDialogProps) => {
-  const router = useRouter();
-
   const {
     reset,
     handleSubmit,
@@ -59,28 +56,6 @@ export const EditUserDialog = ({
       isActive: String(user.isActive),
     });
   }, [isOpen, user, reset]);
-
-  const onSubmit = async (data: { role: UserRole; isActive: string }) => {
-    try {
-      const response = await updateUser({
-        userId: user.id,
-        role: data.role,
-        isActive: data.isActive === 'true',
-      });
-
-      if (response.success) {
-        onClose();
-        setTimeout(() => {
-          toast.success('User updated successfully.');
-        }, 500);
-        router.refresh();
-      }
-    } catch (error) {
-      console.error('Failed to update user:', error);
-    } finally {
-      reset();
-    }
-  };
 
   return (
     <Dialog

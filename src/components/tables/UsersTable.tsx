@@ -18,7 +18,6 @@ import {
 import { USER_TABLE_COLUMNS } from '@/constants/constants';
 import { TUserSchema } from '@/types/dbTablesTypes';
 
-import { Button } from '../ui/button';
 const LazyPaginate = lazy(async () => ({
   default: (await import('../ui/Paginate')).Paginate,
 }));
@@ -114,7 +113,6 @@ const UsersTable = () => {
   const SearchAndAddUserControls = (
     <div className='flex flex-col items-start gap-2 pb-4 sm:flex-row sm:items-start sm:justify-between'>
       <div>
-        <Button className='mb-4'>Add User</Button>
         <UsersTableSearchBar
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -141,20 +139,24 @@ const UsersTable = () => {
   );
 
   const FixedActionColumn = (
-    <div className='sticky left-0 z-30 border-r bg-white dark:bg-zinc-900'>
+    <div className='sticky left-0 border-r bg-white dark:bg-zinc-900'>
       <Table>
         <TableHeader>
           <TableRow className='h-14 align-middle'>
-            <TableHead className='w-[50px] text-center'>Action</TableHead>
+            <TableHead className='text-muted-foreground w-[50px] text-center text-sm font-semibold'>
+              Action
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {paginatedUsers.map((user) => (
             <TableRow key={user.id} className='h-14 align-middle'>
-              <TableCell className='h-14 w-[50px] text-center align-middle'>
-                <Suspense fallback={<div className='text-center'>...</div>}>
-                  <LazyActions user={user} />
-                </Suspense>
+              <TableCell className='text-muted-foreground h-14 w-[50px] px-2 py-1 text-sm'>
+                <div className='flex h-full items-center justify-center'>
+                  <Suspense fallback={<div className='text-center'>...</div>}>
+                    <LazyActions user={user} />
+                  </Suspense>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -169,7 +171,9 @@ const UsersTable = () => {
 
   return (
     <Card className='mx-auto mt-4 w-full max-w-screen-xl gap-4 rounded-md border px-4 py-6 sm:px-6'>
-      <h1 className='mb-4 text-3xl font-bold'>All Users</h1>
+      <h1 className='text-muted-foreground mb-4 text-3xl font-bold'>
+        All Users
+      </h1>
 
       {SearchAndAddUserControls}
 
@@ -184,7 +188,7 @@ const UsersTable = () => {
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className='relative bg-gray-200 text-center dark:bg-zinc-800'
+                      className='text-muted-foreground relative bg-gray-200 text-center text-sm font-semibold dark:bg-zinc-800'
                       style={{
                         width: `${header.getSize()}px`,
                       }}
@@ -212,7 +216,7 @@ const UsersTable = () => {
                 <TableRow>
                   <TableCell
                     colSpan={USER_TABLE_COLUMNS.length}
-                    className='text-muted-foreground text-center'
+                    className='text-muted-foreground py-6 text-center text-sm'
                   >
                     No users found.
                   </TableCell>
@@ -224,7 +228,12 @@ const UsersTable = () => {
                       <TableCell
                         key={cell.id}
                         style={{ width: `${cell.column.getSize()}px` }}
-                        className='h-14 text-center align-middle'
+                        className={`text-muted-foreground h-14 px-2 py-1 align-middle text-sm ${
+                          cell.column.id === 'email' ||
+                          cell.column.id === 'name'
+                            ? 'text-left'
+                            : 'text-center'
+                        }`}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

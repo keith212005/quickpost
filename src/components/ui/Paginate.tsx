@@ -42,7 +42,9 @@ export function Paginate({
         <PaginationItem>
           <PaginationPrevious
             onClick={() => setPage(Math.max(1, page - 1))}
-            className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+            className={`text-muted-foreground hover:text-primary text-sm font-medium transition-opacity duration-200 ${
+              page === 1 ? 'pointer-events-none opacity-50' : ''
+            }`}
           />
         </PaginationItem>
 
@@ -50,7 +52,7 @@ export function Paginate({
           <>
             <PaginationItem>
               <PaginationLink
-                className='cursor-pointer'
+                className='text-muted-foreground hover:text-primary cursor-pointer px-3 py-1 text-sm font-medium transition-colors duration-200'
                 onClick={() => setPage(1)}
               >
                 1
@@ -67,7 +69,11 @@ export function Paginate({
         {pageNumbers.map((num) => (
           <PaginationItem key={num}>
             <PaginationLink
-              className='cursor-pointer'
+              className={`cursor-pointer px-3 py-1 text-sm font-medium ${
+                num === page
+                  ? 'text-primary font-semibold'
+                  : 'text-muted-foreground hover:text-primary'
+              }`}
               isActive={num === page}
               onClick={() => setPage(num)}
             >
@@ -85,7 +91,7 @@ export function Paginate({
             )}
             <PaginationItem>
               <PaginationLink
-                className='cursor-pointer'
+                className='text-muted-foreground hover:text-primary cursor-pointer px-3 py-1 text-sm font-medium transition-colors duration-200'
                 onClick={() => setPage(totalPages)}
               >
                 {totalPages}
@@ -97,9 +103,9 @@ export function Paginate({
         <PaginationItem>
           <PaginationNext
             onClick={() => setPage(Math.min(totalPages, page + 1))}
-            className={
+            className={`text-muted-foreground hover:text-primary text-sm font-medium transition-opacity duration-200 ${
               page === totalPages ? 'pointer-events-none opacity-50' : ''
-            }
+            }`}
           />
         </PaginationItem>
       </PaginationContent>

@@ -95,7 +95,7 @@ export const USER_TABLE_COLUMNS = [
   },
   {
     accessorKey: 'isOAuth',
-    header: 'isOAuth',
+    header: 'OAuth',
     enableResizing: true,
     size: 100,
     minSize: 100,
@@ -142,7 +142,7 @@ export const USER_TABLE_COLUMNS = [
 
   {
     accessorKey: 'createdAt',
-    header: 'createdAt',
+    header: 'Date Created',
     enableResizing: true,
     size: 150,
     minSize: 100,
@@ -161,7 +161,7 @@ export const USER_TABLE_COLUMNS = [
   },
   {
     accessorKey: 'emailVerified',
-    header: 'emailVerified',
+    header: 'Email Verified',
     enableResizing: true,
     size: 150,
     minSize: 100,
@@ -193,6 +193,17 @@ export const USER_TABLE_COLUMNS = [
   {
     accessorKey: 'likes',
     header: 'Total Likes',
+    enableResizing: true,
+    size: 150,
+    minSize: 100,
+    maxSize: 300,
+    cell: ({ getValue }: { getValue: () => unknown }) => {
+      return (getValue() as unknown[] | undefined)?.length || 0;
+    },
+  },
+  {
+    accessorKey: 'flags',
+    header: 'Total flags',
     enableResizing: true,
     size: 150,
     minSize: 100,

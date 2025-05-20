@@ -17,6 +17,7 @@ export async function updateUser({
   data?: unknown;
   error?: string;
 }> {
+  console.log('Incoming updateUser request', { userId, role, isActive });
   try {
     const user = await prisma.user.update({
       where: { id: userId },

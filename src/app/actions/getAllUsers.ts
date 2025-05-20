@@ -32,14 +32,10 @@ export async function getAllUsers(
             title: true,
             content: true,
             createdAt: true,
-            author: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
+            author: true,
+            tags: true,
             likes: true,
+            flags: true,
           },
         },
         likes: {
@@ -62,9 +58,10 @@ export async function getAllUsers(
             },
           },
         },
+        flags: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        firstName: 'asc',
       },
     });
 
