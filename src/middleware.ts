@@ -8,8 +8,12 @@ export async function middleware(request: NextRequest) {
   const session = await auth();
   const pathname = request.nextUrl.pathname;
 
-  if (!session) {
-    return NextResponse.redirect(new URL('/signin', request.url));
+  // If session is missing or expired, redirect to signin
+  if (!session || !session.user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/signin';
+    url.searchParams.set('error', 'Session expired. Please sign in again.');
+    return NextResponse.redirect(url);
   }
 
   const role = session.user?.role;

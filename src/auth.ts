@@ -81,7 +81,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: '/error',
   },
   session: {
-    strategy: 'jwt', // ← this is important
+    strategy: 'jwt',
+    maxAge: 60 * 10, // 10 minutes
+    updateAge: 300, // refresh every 5 minutes
   },
   callbacks: {
     authorized: async ({ auth }) => {
