@@ -4,7 +4,7 @@ import type { Post } from '@prisma/client';
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
-import { TPostFormSchema, TPostSchema } from '@/types/dbTablesTypes';
+import { TPostFormSchema } from '@/types/dbTablesTypes';
 
 type CreatePostResult =
   | { success: true; post: Post }

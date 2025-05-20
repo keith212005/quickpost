@@ -31,6 +31,7 @@ export async function getMyPosts(
             id: true,
             name: true,
             email: true,
+            image: true,
           },
         },
         likes: true,

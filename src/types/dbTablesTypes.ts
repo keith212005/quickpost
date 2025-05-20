@@ -35,9 +35,9 @@ export const userSchema = z.object({
   createdAt: z.date(),
   lastLogin: z.date().nullable(),
   emailVerified: z.date().nullable(),
-  posts: z.array(z.lazy(() => postSchema)).nullable(),
-  likes: z.array(z.lazy(() => postSchema)).nullable(),
-  flags: z.array(z.lazy(() => flagSchema)).optional(),
+  posts: z.array(z.any()).optional(),
+  likes: z.array(z.any()).optional(),
+  flags: z.array(z.any()).optional(),
 });
 export type TUserSchema = z.infer<typeof userSchema>;
 
