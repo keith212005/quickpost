@@ -1,5 +1,5 @@
 import AddOrEditPostForm from '@/components/AddOrEditPostForm';
-import ClientPostFeed from '@/components/AllPostsList';
+import AllPostList from '@/components/AllPostsList';
 
 export default async function FeedPage() {
   return (
@@ -8,7 +8,7 @@ export default async function FeedPage() {
         <h1 className='text-2xl font-bold'>Global Feed</h1>
         <AddOrEditPostForm />
       </div>
-      <ClientPostFeed />
+      <AllPostList />
     </>
   );
 }

@@ -6,10 +6,17 @@ import { signOut } from 'next-auth/react';
 
 import ThemedIcon from './ui/ThemedIcon';
 
-export const SignOutButton = () => {
+type Props = {
+  onClick?: () => void;
+};
+
+export const SignOutButton = ({ onClick }: Props) => {
   return (
     <button
-      onClick={() => signOut()}
+      onClick={() => {
+        onClick?.();
+        signOut();
+      }}
       className='flex items-center gap-3 rounded-lg px-4 py-2 transition hover:bg-gray-200 dark:text-white hover:dark:bg-gray-700'
     >
       <ThemedIcon Icon={LogOut} />

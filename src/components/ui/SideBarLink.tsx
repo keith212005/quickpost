@@ -8,9 +8,15 @@ type SideBarLinkProps = {
   children: React.ReactNode;
   href: string;
   label: string;
+  onClick?: () => void;
 };
 
-export const SideBarLink = ({ children, href, label }: SideBarLinkProps) => {
+export const SideBarLink = ({
+  children,
+  href,
+  label,
+  onClick,
+}: SideBarLinkProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const pathname = usePathname();
@@ -27,7 +33,10 @@ export const SideBarLink = ({ children, href, label }: SideBarLinkProps) => {
 
   return (
     <button
-      onClick={() => startTransition(() => router.push(href))}
+      onClick={() => {
+        onClick?.();
+        startTransition(() => router.push(href));
+      }}
       className={`flex w-full items-center justify-between rounded-lg px-4 py-2 transition ${
         isActive
           ? 'bg-blue-100 text-blue-700 dark:bg-gray-800 dark:text-white'

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useMediaQuery } from 'usehooks-ts';
@@ -19,6 +20,7 @@ import { UserResponsiveSidebar } from '../UserResponsiveSidebar';
 export default function Navbar() {
   const { data: session, status } = useSession();
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   if (status === 'loading') return null;
 
@@ -39,14 +41,22 @@ export default function Navbar() {
     <header className='w-full bg-white shadow-md dark:bg-black'>
       <div className='mx-auto flex max-w-7xl items-center justify-between px-6 py-4'>
         {isMobile ? (
-          <DropdownMenu>
+          <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>{renderLogo}</DropdownMenuTrigger>
             <DropdownMenuContent
               className='w-64 border border-gray-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-black'
               align='start'
               sideOffset={8}
             >
-              {isAdmin ? <AdminResponsiveSidebar /> : <UserResponsiveSidebar />}
+              {isAdmin ? (
+                <AdminResponsiveSidebar
+                  onItemSelect={() => setDropdownOpen(false)}
+                />
+              ) : (
+                <UserResponsiveSidebar
+                  onItemSelect={() => setDropdownOpen(false)}
+                />
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (

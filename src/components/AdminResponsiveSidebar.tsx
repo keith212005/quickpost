@@ -5,26 +5,34 @@ import { SignOutButton } from './SingoutButton';
 import { SideBarLink } from './ui/SideBarLink';
 import ThemedIcon from './ui/ThemedIcon';
 
-export const AdminResponsiveSidebar = () => {
+type Props = {
+  onItemSelect?: () => void;
+};
+
+export const AdminResponsiveSidebar = ({ onItemSelect }: Props) => {
   return (
     <>
-      <SideBarLink href='/admin/dashboard/overview' label='Dashboard'>
+      <SideBarLink
+        href='/admin/dashboard/overview'
+        label='Dashboard'
+        onClick={onItemSelect}
+      >
         <ThemedIcon Icon={Home} />
       </SideBarLink>
 
-      <SideBarLink href='/admin/users' label='Users'>
+      <SideBarLink href='/admin/users' label='Users' onClick={onItemSelect}>
         <ThemedIcon Icon={User} />
       </SideBarLink>
 
-      <SideBarLink href='/admin/posts' label='All Posts'>
+      <SideBarLink href='/admin/posts' label='All Posts' onClick={onItemSelect}>
         <ThemedIcon Icon={MessageSquareText} />
       </SideBarLink>
 
-      <SideBarLink href='/settings' label='Settings'>
+      <SideBarLink href='/settings' label='Settings' onClick={onItemSelect}>
         <ThemedIcon Icon={Settings} />
       </SideBarLink>
 
-      <SignOutButton />
+      <SignOutButton onClick={onItemSelect} />
     </>
   );
 };

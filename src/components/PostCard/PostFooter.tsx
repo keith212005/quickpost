@@ -33,7 +33,7 @@ export default function PostFooter({
   tags?: string[];
 }) {
   return (
-    <CardFooter className='text-muted-foreground mt-4 flex flex-col gap-2 px-5 pt-2 pb-4 text-sm md:flex-row md:items-center md:justify-between'>
+    <CardFooter className='text-muted-foreground mt-4 flex flex-wrap gap-x-4 gap-y-2 px-5 pt-2 pb-4 text-sm sm:flex-nowrap sm:items-center sm:justify-between'>
       <div className='flex items-center gap-2'>
         <HeartButton
           isLikedByUser={isLikedByUser ?? false}
@@ -47,13 +47,13 @@ export default function PostFooter({
       </div>
 
       {flags && flags?.length > 0 && (
-        <div className='ml-auto text-xs text-red-500'>
+        <div className='text-xs text-red-500 sm:ml-auto'>
           ⚠️ Flagged by {flags.length} user{flags.length > 1 ? 's' : ''}
         </div>
       )}
 
       {edit && (
-        <div className='ml-auto flex gap-2'>
+        <div className='flex w-full justify-end gap-2 sm:w-auto'>
           {isAuthor && (
             <AddOrEditPostForm
               postId={postId}
