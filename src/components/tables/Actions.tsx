@@ -1,6 +1,6 @@
 'use client';
 import React, { startTransition, useState } from 'react';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client/edge';
 import {
   DropdownMenu,
   DropdownMenuContent,

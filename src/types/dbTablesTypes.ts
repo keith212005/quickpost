@@ -1,4 +1,4 @@
-import { UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client/edge';
 import { z } from 'zod';
 
 // Post schema (define first if it's used inside likeSchema)

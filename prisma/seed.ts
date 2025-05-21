@@ -1,6 +1,6 @@
 // prisma/seed.ts
 import { faker } from '@faker-js/faker';
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client/edge';
 
 import { TPostSchema } from '@/types/dbTablesTypes';
 const prisma = new PrismaClient();
@@ -9,7 +9,7 @@ async function main() {
   console.log('Seeding...');
 
   // 1. Create Users
-  const userCount = 50;
+  const userCount = 10;
   const users = await Promise.all(
     Array.from({ length: userCount }).map(() =>
       prisma.user.create({

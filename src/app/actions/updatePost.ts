@@ -1,6 +1,6 @@
 'use server';
 
-import type { Post } from '@prisma/client';
+import type { Post } from '@prisma/client/edge';
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';

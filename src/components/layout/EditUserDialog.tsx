@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client/edge';
 import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';

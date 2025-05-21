@@ -1,4 +1,5 @@
 import { PrismaAdapter } from '@auth/prisma-adapter';
+import { Prisma } from '@prisma/client/edge';
 import bcrypt from 'bcryptjs';
 import NextAuth from 'next-auth';
 import type { Provider } from 'next-auth/providers';
@@ -21,7 +22,9 @@ const providers: Provider[] = [
         throw new Error('Missing credentials');
       }
 
-      const user = await prisma.user.findUnique({
+      const user = await (
+        prisma.user.findUnique as Prisma.UserDelegate['findUnique']
+      )({
         where: { email: credentials.email as string },
       });
 

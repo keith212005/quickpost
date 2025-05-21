@@ -1,6 +1,6 @@
 'use server';
 
-import type { UserRole } from '@prisma/client';
+import type { UserRole } from '@prisma/client/edge';
 
 import { prisma } from '@/lib/db';
 
