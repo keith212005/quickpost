@@ -46,16 +46,18 @@ export default function AllPostsList() {
       {isPending ? (
         <PostSkeleton />
       ) : (
-        posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            edit={isAdmin || session?.user?.id === post.author?.id}
-            isLikedByUser={post.likes?.some(
-              (like) => like.userId === session?.user?.id,
-            )}
-          />
-        ))
+        posts.map((post) => {
+          return (
+            <PostCard
+              key={post.id}
+              post={post}
+              edit={isAdmin || session?.user?.id === post.author?.id}
+              isLikedByUser={post.likes?.some(
+                (like) => like.userId === session?.user?.id,
+              )}
+            />
+          );
+        })
       )}
       {pagination}
     </div>

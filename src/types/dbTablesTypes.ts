@@ -18,7 +18,12 @@ export const postSchema = z.object({
   tags: z.array(z.string()).optional(),
   likes: z.array(z.any()).optional(),
   flags: z.array(z.any()).optional(),
-  comments: z.array(z.lazy(() => commentSchema)).optional(),
+  comments: z.array(z.any()).optional(),
+  _count: z.object({
+    flags: z.number(),
+    comments: z.number(),
+    likes: z.number(),
+  }),
 });
 export type TPostSchema = z.infer<typeof postSchema>;
 
@@ -101,6 +106,17 @@ export const commentSchema: z.ZodType<CommentSchema> = z.object({
   replies: z.array(z.lazy(() => commentSchema)),
 });
 export type TCommentSchema = z.infer<typeof commentSchema>;
+
+export const liteCommentSchema = z.object({
+  id: z.string(),
+  content: z.string(),
+  createdAt: z.date(),
+  author: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
+});
+export type TLiteCommentSchema = z.infer<typeof liteCommentSchema>;
 
 export const postFormSchema = postSchema.omit({
   id: true,

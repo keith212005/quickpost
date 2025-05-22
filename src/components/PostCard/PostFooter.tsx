@@ -1,5 +1,11 @@
 'use client';
 
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+
+import { getComments } from '@/app/actions/getComments';
+import { Button } from '@/components/ui/button';
 import { CardFooter } from '@/components/ui/card';
 import {
   Dialog,
@@ -8,15 +14,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { TPostSchema } from '@/types/dbTablesTypes';
+import { Textarea } from '@/components/ui/textarea';
 
 import AddOrEditPostForm from '../AddOrEditPostForm';
 import DeletePostButton from '../DeletePostButton';
 import { HeartButton } from '../HeartButton';
 
 export default function PostFooter({
-  likes,
-  flags,
   isLikedByUser,
   onToggleLikeAction,
   edit,
@@ -26,10 +30,12 @@ export default function PostFooter({
   title,
   content,
   tags,
-  comments,
+  commentCount,
+  flagCount,
+  likesCount,
+  onAddCommentAction,
+  onDeleteCommentAction,
 }: {
-  likes: Partial<TPostSchema['likes']> | null[];
-  flags: Partial<TPostSchema['flags']> | null[];
   isLikedByUser?: boolean;
   onToggleLikeAction: () => void;
   edit?: boolean;
@@ -39,9 +45,21 @@ export default function PostFooter({
   title: string;
   content: string;
   tags?: string[];
-  comments?: Partial<TPostSchema['comments']> | null[];
+  commentCount: number;
+  flagCount: number;
+  likesCount: number;
+  onAddCommentAction: (comment: string) => void;
+  onDeleteCommentAction: (commentId: string) => void;
 }) {
-  console.log('comments >>>>>>', comments);
+  const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
+  const queryClient = useQueryClient();
+  const { data: comments = [], isLoading } = useQuery({
+    queryKey: ['comments', postId],
+    queryFn: () => getComments(postId),
+    enabled: open,
+  });
+
   return (
     <CardFooter className='text-muted-foreground mt-4 flex flex-wrap gap-x-4 gap-y-2 px-5 pt-2 pb-4 text-sm sm:flex-nowrap sm:items-center sm:justify-between'>
       <div className='flex items-center gap-2'>
@@ -50,45 +68,90 @@ export default function PostFooter({
           onClick={onToggleLikeAction}
         />
         <span>
-          {likes?.length === 0
+          {likesCount === 0
             ? 'Be the first to like this'
-            : `${likes?.length} like${likes?.length !== 1 ? 's' : ''}`}
+            : `${likesCount} like${likesCount !== 1 ? 's' : ''}`}
         </span>
       </div>
 
-      {comments && comments.length > 0 && (
-        <Dialog>
+      {commentCount > 0 && (
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger className='text-muted-foreground mt-2 w-full text-left text-xs sm:ml-auto sm:w-auto'>
-            💬 {comments.length} comment{comments.length !== 1 ? 's' : ''}
+            💬 {commentCount} comment{commentCount !== 1 ? 's' : ''}
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className='w-full sm:max-w-2xl'>
             <DialogHeader>
-              <DialogTitle>Comments</DialogTitle>
+              <DialogTitle>Comments-{postId}</DialogTitle>
             </DialogHeader>
-            <div className='mt-2 max-h-60 space-y-2 overflow-y-auto text-sm'>
-              {comments.map((comment) => (
-                <div key={comment?.id}>
-                  <strong>{comment?.author?.name}</strong>: {comment?.content}
-                </div>
-              ))}
+            <div className='mt-4 max-h-72 space-y-4 overflow-y-auto pr-2'>
+              {isLoading ? (
+                <p className='text-muted-foreground text-sm'>
+                  Loading comments...
+                </p>
+              ) : 'data' in comments && comments.data ? (
+                comments.data.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className='bg-background hover:bg-muted rounded-md border px-4 py-3 shadow-sm transition'
+                  >
+                    <div className='flex items-start justify-between'>
+                      <p className='text-foreground text-sm font-semibold'>
+                        {comment.author.name}
+                      </p>
+                      {comment.author.id === session?.user?.id && (
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='text-destructive hover:text-destructive/80 text-xs'
+                          onClick={() => {
+                            onDeleteCommentAction(comment.id);
+                            queryClient.invalidateQueries({
+                              queryKey: ['comments'],
+                            });
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </div>
+                    <p className='text-muted-foreground mt-1 text-sm whitespace-pre-wrap'>
+                      {comment.content}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className='text-sm text-red-500'>Failed to load comments.</p>
+              )}
             </div>
             <div className='mt-4 space-y-2'>
-              <textarea
-                className='focus:ring-primary w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring'
-                placeholder='Write a comment...'
+              <Textarea
+                placeholder='Write your comment here...'
                 rows={3}
+                className='h-32 resize-none text-sm'
               />
-              <button className='bg-primary hover:bg-primary/90 rounded-md px-4 py-2 text-sm text-white'>
+              <Button
+                type='button'
+                className='w-full sm:w-auto'
+                onClick={() => {
+                  const comment = document.querySelector('textarea')?.value;
+                  if (comment) {
+                    {
+                      onAddCommentAction(comment);
+                      setOpen(false);
+                    }
+                  }
+                }}
+              >
                 Post Comment
-              </button>
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
       )}
 
-      {flags && flags?.length > 0 && (
+      {flagCount > 0 && (
         <div className='text-xs text-red-500 sm:ml-auto'>
-          ⚠️ Flagged by {flags.length} user{flags.length > 1 ? 's' : ''}
+          ⚠️ Flagged by {flagCount} user{flagCount > 1 ? 's' : ''}
         </div>
       )}
 

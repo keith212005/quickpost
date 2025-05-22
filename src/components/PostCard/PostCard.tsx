@@ -3,12 +3,16 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
+import { addComment } from '@/app/actions/addComment';
+import { deleteComment } from '@/app/actions/deleteComment';
 import { flagPost } from '@/app/actions/flagPost';
 import { toggleLike } from '@/app/actions/toggleLike';
 import { Card } from '@/components/ui/card';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
+import { CustomAlertDialog } from '../CustomAlertDialog';
 import FlagPostDialog from './FlagPostDialog';
 import PostContent from './PostContent';
 import PostFooter from './PostFooter';
@@ -22,18 +26,28 @@ type PostCardProps = {
 };
 
 export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
-  const { id, title, content, likes, flags, author, createdAt } = post;
+  const { id, title, content, flags, tags, author, createdAt, _count } = post;
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
+  // State for UI controls
   const [isExpanded, setIsExpanded] = useState(false);
   const [isFlagDialogOpen, setIsFlagDialogOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  // State for tracking comment deletion
+  const [commentIdToDelete, setCommentIdToDelete] = useState<string | null>(
+    null,
+  );
+
+  // User role and permissions
   const isAuthor = session?.user?.id === author?.id;
   const isAdmin = session?.user?.role === 'admin';
   const hasFlagged = flags?.some((flag) => flag.userId === session?.user?.id);
 
+  /**
+   * Handler to toggle like status on the post.
+   */
   const handleToggleLike = async () => {
     try {
       await toggleLike(id);
@@ -43,7 +57,12 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
     }
   };
 
-  const handleFlagSubmit = async (reason: string) => {
+  /**
+   * Handler to flag the post with a given reason.
+   * @param reason - Reason for flagging the post.
+   * @returns boolean indicating success or failure.
+   */
+  const handleFlagPost = async (reason: string) => {
     try {
       const res = await flagPost(id, reason);
       if (!res?.success) throw new Error('Failed to flag post');
@@ -55,18 +74,75 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
     }
   };
 
+  /**
+   * Handler to add a comment to the post.
+   * @param comment - The comment content to add.
+   */
+  const handleAddComment = async (comment: string) => {
+    console.log('Adding comment:', comment);
+
+    try {
+      const res = await addComment({
+        postId: id,
+        content: comment,
+      });
+
+      if (!res?.success) {
+        // No action needed on failure here
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['posts'] });
+        toast.success('Comment added successfully');
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
+
+  /**
+   * Handler to delete a comment by its ID.
+   * @param commentId - ID of the comment to delete.
+   */
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteComment(commentId);
+      queryClient.invalidateQueries({ queryKey: ['comments'] });
+      toast.success('Comment deleted successfully');
+    } catch (e) {
+      console.error('Error deleting comment:', e);
+      toast.error('Failed to delete comment');
+    }
+  };
+
   return (
     <>
+      {/* Confirmation dialog for deleting a comment */}
+      <CustomAlertDialog
+        open={!!commentIdToDelete}
+        title='Delete comment?'
+        description='Are you sure you want to delete this comment? This action cannot be undone.'
+        confirmText='Delete'
+        onConfirm={() => {
+          if (commentIdToDelete) {
+            handleDeleteComment(commentIdToDelete);
+            setCommentIdToDelete(null);
+          }
+        }}
+        onCancel={() => setCommentIdToDelete(null)}
+      />
+
+      {/* Dialog for flagging a post */}
       <FlagPostDialog
         open={isFlagDialogOpen}
         onClose={() => setIsFlagDialogOpen(false)}
         onSubmit={async (reason) => {
-          const success = await handleFlagSubmit(reason);
+          const success = await handleFlagPost(reason);
           if (success) {
             setIsFlagDialogOpen(false);
           }
         }}
       />
+
+      {/* Main post card container */}
       <Card className='border-muted bg-background max-w-full overflow-hidden rounded-xl border shadow hover:shadow-md'>
         <PostHeader
           author={author}
@@ -78,22 +154,24 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
             setDropdownOpen(false);
             setIsFlagDialogOpen(true);
           }}
-          onUnflag={() => {
-            handleFlagSubmit('');
-          }}
+          onUnflag={() => handleFlagPost('')}
         />
+
         <PostTitle title={title} />
+
         <PostContent
           content={content}
           createdAt={createdAt}
-          tags={post.tags}
+          tags={tags}
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
           isLongContent={content.split('\n').length > 5}
         />
+
         <PostFooter
-          likes={likes}
-          flags={flags}
+          commentCount={_count?.comments || 0}
+          flagCount={_count?.flags || 0}
+          likesCount={_count?.likes || 0}
           isLikedByUser={isLikedByUser}
           onToggleLikeAction={handleToggleLike}
           edit={edit}
@@ -102,8 +180,9 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
           postId={id}
           title={title}
           content={content}
-          tags={post.tags}
-          comments={post?.comments}
+          tags={tags}
+          onAddCommentAction={handleAddComment}
+          onDeleteCommentAction={(commentId) => setCommentIdToDelete(commentId)}
         />
       </Card>
     </>

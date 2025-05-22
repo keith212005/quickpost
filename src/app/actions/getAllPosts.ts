@@ -28,30 +28,13 @@ export async function getAllPosts(
         },
         tags: true,
         likes: true,
-        flags: {
+        flags: true,
+        comments: true,
+        _count: {
           select: {
-            id: true,
-            reason: true,
-            createdAt: true,
-            userId: true,
-            postId: true,
-            post: true,
-            user: true,
-          },
-        },
-        comments: {
-          select: {
-            id: true,
-            content: true,
-            createdAt: true,
-            author: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                image: true,
-              },
-            },
+            comments: true,
+            flags: true,
+            likes: true,
           },
         },
       },
