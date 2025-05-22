@@ -7,14 +7,11 @@
     "build": "prisma generate --no-engine && next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate": "npx prisma migrate dev --name add-author-relation",
-    "generate": "npx prisma generate",
-    "resetdb": "npx prisma db execute --file ./drop-all-tables.sql --schema=./prisma/schema.prisma",
-    "seed": "npx ts-node --project tsconfig.seed.json prisma/seed.ts",
-    "reset": "ts-node --project tsconfig.seed.json scripts/reset-and-seed.ts",
-    "studio": "npx prisma studio",
-    "seed2": "npx prisma db seed",
-    "test:prisma": "ts-node --project tsconfig.seed.json scripts/prisma-test.ts"
+    "test:prisma": "ts-node --project tsconfig.seed.json scripts/prisma-test.ts",
+    "seed:prod": "dotenv -e .env.production -- npx prisma db seed",
+    "resetdb:local": "dotenv -e .env.local -- ts-node --project tsconfig.seed.json scripts/reset-and-seed.ts",
+    "studio:local": "npx dotenv -e .env.local -- npx prisma studio",
+    "migrate:local": "dotenv -e .env.local -- npx prisma migrate dev"
   },
   "prisma": {
     "seed": "ts-node --project tsconfig.seed.json prisma/seed.ts"
@@ -60,6 +57,7 @@
     "@types/node": "^22.15.18",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",

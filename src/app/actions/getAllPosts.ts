@@ -39,6 +39,21 @@ export async function getAllPosts(
             user: true,
           },
         },
+        comments: {
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            author: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',

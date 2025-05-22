@@ -95,7 +95,7 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
           likes={likes}
           flags={flags}
           isLikedByUser={isLikedByUser}
-          onToggleLike={handleToggleLike}
+          onToggleLikeAction={handleToggleLike}
           edit={edit}
           isAuthor={isAuthor}
           isAdmin={isAdmin}
@@ -103,6 +103,7 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
           title={title}
           content={content}
           tags={post.tags}
+          comments={post?.comments}
         />
       </Card>
     </>

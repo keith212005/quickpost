@@ -18,6 +18,7 @@ export const postSchema = z.object({
   tags: z.array(z.string()).optional(),
   likes: z.array(z.any()).optional(),
   flags: z.array(z.any()).optional(),
+  comments: z.array(z.lazy(() => commentSchema)).optional(),
 });
 export type TPostSchema = z.infer<typeof postSchema>;
 
@@ -38,6 +39,7 @@ export const userSchema = z.object({
   posts: z.array(z.any()).optional(),
   likes: z.array(z.any()).optional(),
   flags: z.array(z.any()).optional(),
+  comments: z.array(z.any()).optional(),
 });
 export type TUserSchema = z.infer<typeof userSchema>;
 
@@ -71,6 +73,34 @@ export const flagSchema: z.ZodType<FlagSchema> = z.object({
   user: z.lazy(() => userSchema),
 });
 export type TFlagSchema = z.infer<typeof flagSchema>;
+
+interface CommentSchema {
+  id: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isEdited: boolean;
+  postId: string;
+  authorId: string;
+  parentId: string | null;
+  post: TPostSchema;
+  author: TUserSchema;
+  replies: CommentSchema[] | null;
+}
+export const commentSchema: z.ZodType<CommentSchema> = z.object({
+  id: z.string(),
+  content: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  isEdited: z.boolean(),
+  postId: z.string(),
+  authorId: z.string(),
+  parentId: z.string().nullable(),
+  post: z.lazy(() => postSchema),
+  author: z.lazy(() => userSchema),
+  replies: z.array(z.lazy(() => commentSchema)),
+});
+export type TCommentSchema = z.infer<typeof commentSchema>;
 
 export const postFormSchema = postSchema.omit({
   id: true,

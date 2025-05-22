@@ -1,12 +1,21 @@
 // prisma/seed.ts
 import { faker } from '@faker-js/faker';
-import { PrismaClient, UserRole } from '@prisma/client/edge';
+import { PrismaClient as BasePrismaClient, UserRole } from '@prisma/client';
+// import { PrismaClient, UserRole } from '@prisma/client/edge';
+import { withAccelerate } from '@prisma/extension-accelerate';
+
+const isAccelerate = process.env.DATABASE_URL?.startsWith('prisma+');
+
+const prisma = isAccelerate
+  ? new BasePrismaClient().$extends(withAccelerate())
+  : new BasePrismaClient();
 
 import { TPostSchema } from '@/types/dbTablesTypes';
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding...');
+  console.log('Using DB:', process.env.DATABASE_URL);
 
   // 1. Create Users
   const userCount = 10;
@@ -96,6 +105,28 @@ async function main() {
         });
       } catch (e) {
         console.log('Flag creation error:', e);
+      }
+    }
+  }
+
+  // 5. Create Comments
+  for (const post of posts) {
+    const commentCount = faker.number.int({ min: 20, max: 30 });
+    const commentingUsers = faker.helpers.arrayElements(users, commentCount);
+
+    for (const user of commentingUsers) {
+      try {
+        await prisma.comment.create({
+          data: {
+            content: faker.lorem.sentences({ min: 1, max: 3 }),
+            postId: post.id,
+            authorId: user.id,
+            isEdited: faker.datatype.boolean(),
+            createdAt: faker.date.recent(),
+          },
+        });
+      } catch (e) {
+        console.log('Comment creation error:', e);
       }
     }
   }
