@@ -4,10 +4,19 @@ import NextAuth from 'next-auth';
 import type { Provider } from 'next-auth/providers';
 import Credentials from 'next-auth/providers/credentials';
 import GitHub from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
 
 import { prisma } from './lib/db';
 
 const providers: Provider[] = [
+  GitHub({
+    clientId: process.env.GITHUB_ID!,
+    clientSecret: process.env.GITHUB_SECRET!,
+  }),
+  GoogleProvider({
+    clientId: process.env.AUTH_GOOGLE_ID!,
+    clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+  }),
   Credentials({
     name: 'Credentials',
     credentials: {
@@ -53,10 +62,6 @@ const providers: Provider[] = [
         isActive: user.isActive,
       };
     },
-  }),
-  GitHub({
-    clientId: process.env.GITHUB_ID!,
-    clientSecret: process.env.GITHUB_SECRET!,
   }),
 ];
 
