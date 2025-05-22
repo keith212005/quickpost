@@ -34,6 +34,7 @@ export default function PostFooter({
   flagCount,
   likesCount,
   onAddCommentAction,
+  onUpdateCommentAction,
   onDeleteCommentAction,
 }: {
   isLikedByUser?: boolean;
@@ -48,10 +49,16 @@ export default function PostFooter({
   commentCount: number;
   flagCount: number;
   likesCount: number;
-  onAddCommentAction: (comment: string) => void;
+  onAddCommentAction: (comment: string, commentId?: string) => void;
+  onUpdateCommentAction: (commentId: string, comment: string) => void;
   onDeleteCommentAction: (commentId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [editingComment, setEditingComment] = useState<{
+    id: string;
+    content: string;
+  } | null>(null);
+  const [commentText, setCommentText] = useState('');
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const { data: comments = [], isLoading } = useQuery({
@@ -99,19 +106,35 @@ export default function PostFooter({
                         {comment.author.name}
                       </p>
                       {comment.author.id === session?.user?.id && (
-                        <Button
-                          variant='ghost'
-                          size='sm'
-                          className='text-destructive hover:text-destructive/80 text-xs'
-                          onClick={() => {
-                            onDeleteCommentAction(comment.id);
-                            queryClient.invalidateQueries({
-                              queryKey: ['comments'],
-                            });
-                          }}
-                        >
-                          Delete
-                        </Button>
+                        <div className='flex gap-2'>
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            className='text-xs text-blue-500 hover:text-blue-600'
+                            onClick={() => {
+                              setEditingComment({
+                                id: comment.id,
+                                content: comment.content,
+                              });
+                              setCommentText(comment.content);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            className='text-destructive hover:text-destructive/80 text-xs'
+                            onClick={() => {
+                              onDeleteCommentAction(comment.id);
+                              queryClient.invalidateQueries({
+                                queryKey: ['comments'],
+                              });
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       )}
                     </div>
                     <p className='text-muted-foreground mt-1 text-sm whitespace-pre-wrap'>
@@ -128,21 +151,27 @@ export default function PostFooter({
                 placeholder='Write your comment here...'
                 rows={3}
                 className='h-32 resize-none text-sm'
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
               />
               <Button
                 type='button'
                 className='w-full sm:w-auto'
                 onClick={() => {
-                  const comment = document.querySelector('textarea')?.value;
-                  if (comment) {
-                    {
-                      onAddCommentAction(comment);
+                  if (commentText.trim()) {
+                    if (editingComment) {
+                      onUpdateCommentAction(editingComment.id, commentText);
+                    } else {
+                      onAddCommentAction(commentText);
                       setOpen(false);
                     }
+
+                    setEditingComment(null);
+                    setCommentText('');
                   }
                 }}
               >
-                Post Comment
+                {editingComment ? 'Update Comment' : 'Post Comment'}
               </Button>
             </div>
           </DialogContent>

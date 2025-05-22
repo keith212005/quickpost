@@ -9,6 +9,7 @@ import { addComment } from '@/app/actions/addComment';
 import { deleteComment } from '@/app/actions/deleteComment';
 import { flagPost } from '@/app/actions/flagPost';
 import { toggleLike } from '@/app/actions/toggleLike';
+import { updateComment } from '@/app/actions/updateComment';
 import { Card } from '@/components/ui/card';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
@@ -113,6 +114,22 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
     }
   };
 
+  const handleUpdateComment = async (commentId: string, content: string) => {
+    try {
+      const res = await updateComment(commentId, content);
+
+      if (!res?.success) {
+        toast.error('Failed to update comment');
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['comments'] });
+        toast.success('Comment updated successfully');
+      }
+    } catch (e) {
+      console.error('Error updating comment:', e);
+      toast.error('Failed to update comment');
+    }
+  };
+
   return (
     <>
       {/* Confirmation dialog for deleting a comment */}
@@ -182,6 +199,7 @@ export default function PostCard({ post, edit, isLikedByUser }: PostCardProps) {
           content={content}
           tags={tags}
           onAddCommentAction={handleAddComment}
+          onUpdateCommentAction={handleUpdateComment}
           onDeleteCommentAction={(commentId) => setCommentIdToDelete(commentId)}
         />
       </Card>
