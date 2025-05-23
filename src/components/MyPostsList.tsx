@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
+import { NoPostFound } from './NoPostFound';
 import PostCard from './PostCard/PostCard';
 import PostSkeleton from './skeletons/PostSkeleton';
 import { Paginate } from './ui/Paginate';
@@ -17,14 +18,15 @@ export default function MyPostsList() {
   const queryClient = useQueryClient();
 
   const { isPending, data } = usePaginatedQuery(
-    ['posts', page],
+    ['myPost', page],
     () => fetch(`/api/getMyPosts?page=${page}`).then((res) => res.json()),
     page,
+    {},
   );
 
   useEffect(() => {
     const handler = () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['myPost'] });
     };
 
     window.addEventListener('post-created', handler);
@@ -41,22 +43,26 @@ export default function MyPostsList() {
 
   return (
     <div className='mx-auto max-w-2xl space-y-6 p-4'>
-      {pagination}
       {isPending ? (
         <PostSkeleton />
+      ) : posts.length === 0 ? (
+        <NoPostFound />
       ) : (
-        posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            edit={session?.user?.id === post.author?.id}
-            isLikedByUser={post.likes?.some(
-              (like) => like.userId === session?.user?.id,
-            )}
-          />
-        ))
+        <>
+          {pagination}
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              edit={session?.user?.id === post.author?.id}
+              isLikedByUser={post.likes?.some(
+                (like) => like.userId === session?.user?.id,
+              )}
+            />
+          ))}
+          {pagination}
+        </>
       )}
-      {pagination}
     </div>
   );
 }

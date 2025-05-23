@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery';
 import { TPostSchema } from '@/types/dbTablesTypes';
 
+import { NoPostFound } from './NoPostFound';
 import PostCard from './PostCard/PostCard';
 import PostSkeleton from './skeletons/PostSkeleton';
 import { Paginate } from './ui/Paginate';
@@ -20,6 +21,7 @@ export default function AllPostsList() {
     ['posts', page],
     () => fetch(`/api/posts?page=${page}`).then((res) => res.json()),
     page,
+    {},
   );
 
   useEffect(() => {
@@ -45,6 +47,8 @@ export default function AllPostsList() {
       {pagination}
       {isPending ? (
         <PostSkeleton />
+      ) : posts.length === 0 ? (
+        <NoPostFound />
       ) : (
         posts.map((post) => {
           return (

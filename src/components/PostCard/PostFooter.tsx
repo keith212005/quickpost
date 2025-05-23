@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import { getComments } from '@/app/actions/getComments';
 import { Button } from '@/components/ui/button';
 import { CardFooter } from '@/components/ui/card';
+import { CommentButton } from '@/components/ui/CommentButton';
 import {
   Dialog,
   DialogContent,
@@ -83,12 +84,12 @@ export default function PostFooter({
 
       {commentCount > 0 && (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger className='text-muted-foreground mt-2 w-full text-left text-xs sm:ml-auto sm:w-auto'>
-            💬 {commentCount} comment{commentCount !== 1 ? 's' : ''}
+          <DialogTrigger asChild>
+            <CommentButton count={commentCount} />
           </DialogTrigger>
           <DialogContent className='w-full sm:max-w-2xl'>
             <DialogHeader>
-              <DialogTitle>Comments-{postId}</DialogTitle>
+              <DialogTitle>Comments</DialogTitle>
             </DialogHeader>
             <div className='mt-4 max-h-72 space-y-4 overflow-y-auto pr-2'>
               {isLoading ? (

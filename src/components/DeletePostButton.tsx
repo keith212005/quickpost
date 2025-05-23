@@ -31,6 +31,7 @@ const DeletePostButton = ({ postId }: DeletePostButtonProps) => {
     mutationFn: () => deletePost({ postId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['myPost'] });
       toast.success('Post deleted successfully');
       setIsDialogOpen(false);
     },

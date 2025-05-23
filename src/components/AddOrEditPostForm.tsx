@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { z } from 'zod';
 
 import { createPost } from '@/app/actions/createPost';
 import { updatePost } from '@/app/actions/updatePost';
@@ -18,10 +19,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { postFormSchema, TPostFormSchema } from '@/types/dbTablesTypes';
 
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
+
+const postFormSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters long'),
+  content: z.string().min(2, 'Content must be at least 2 characters long'),
+  tags: z.array(z.string()).optional(),
+});
+
+type TPostFormSchema = z.infer<typeof postFormSchema>;
 
 type AddOrEditPostFormProps = Partial<TPostFormSchema> & {
   postId?: string;
@@ -103,9 +111,6 @@ const AddOrEditPostForm = ({
   });
 
   const onSubmit = async (data: TPostFormSchema) => {
-    console.log('data >>>>>', data.tags);
-    console.log('data >>>>>', typeof data.tags);
-
     setLoading(true);
 
     const normalizedTags =

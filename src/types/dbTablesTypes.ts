@@ -122,6 +122,10 @@ export const postFormSchema = postSchema.omit({
   id: true,
   createdAt: true,
   author: true,
+  _count: true,
+  likes: true,
+  flags: true,
+  comments: true,
 });
 
 export type TPostFormSchema = z.infer<typeof postFormSchema>;
