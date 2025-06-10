@@ -8,6 +8,7 @@ type GetAllUsersResult =
 export async function getAllUsers(
   take = 50,
   skip = 0,
+  searchParams: string,
 ): Promise<GetAllUsersResult> {
   try {
     const users = await prisma.user.findMany({
@@ -63,9 +64,22 @@ export async function getAllUsers(
       orderBy: {
         firstName: 'asc',
       },
+      where: {
+        OR: [
+          { name: { contains: searchParams || '', mode: 'insensitive' } },
+          { email: { contains: searchParams || '', mode: 'insensitive' } },
+        ],
+      },
     });
 
-    const totalCount = await prisma.user.count();
+    const totalCount = await prisma.user.count({
+      where: {
+        OR: [
+          { name: { contains: searchParams, mode: 'insensitive' } },
+          { email: { contains: searchParams, mode: 'insensitive' } },
+        ],
+      },
+    });
 
     // Transform likes to be an array of posts
     const mappedUsers = users.map((user) => ({

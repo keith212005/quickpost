@@ -5,10 +5,11 @@ import { getAllUsers } from '@/app/actions/getAllUsers';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get('page') || '1', 10);
+  const searchString = searchParams.get('search') || '';
   const take = 10;
   const skip = (page - 1) * take;
 
-  const result = await getAllUsers(take, skip);
+  const result = await getAllUsers(take, skip, searchString);
 
   if (!result.success) {
     return NextResponse.json({ error: result.error }, { status: 500 });

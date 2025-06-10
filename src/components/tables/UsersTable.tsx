@@ -46,8 +46,11 @@ const UsersTable = () => {
   // Data fetching
 
   const { isPending, data } = usePaginatedQuery(
-    ['users'],
-    () => fetch(`/api/getAllUsers?page=${page}`).then((res) => res.json()),
+    ['users', page, search],
+    () =>
+      fetch(`/api/getAllUsers?page=${page}&search=${search}`).then((res) =>
+        res.json(),
+      ),
     page,
   );
 
@@ -63,15 +66,13 @@ const UsersTable = () => {
     }));
   };
 
-  // Filter users based on search input
-  const filteredUsers = useMemo(() => {
-    return users.filter((user) =>
-      `${user.name} ${user.email}`.toLowerCase().includes(search.toLowerCase()),
-    );
-  }, [users, search]);
-
-  // Calculate total pages from API
-  const totalPages = data?.totalPages ?? 1;
+  // Calculate total pages from API, accounting for search and filtered count
+  const totalPages = useMemo(() => {
+    if (search && data?.totalFilteredCount !== undefined) {
+      return Math.max(1, Math.ceil(data.totalFilteredCount / 10)); // assuming 10 items per page
+    }
+    return data?.totalPages ?? 1;
+  }, [search, data]);
 
   // Extract visible columns based on visibility state
   const visibleUserTableColumns = useMemo(
@@ -83,7 +84,7 @@ const UsersTable = () => {
   );
 
   // Pagination handled on server, use filteredUsers directly
-  const paginatedUsers = filteredUsers;
+  const paginatedUsers = users;
 
   // React table instance
   const table = useReactTable({
@@ -102,13 +103,17 @@ const UsersTable = () => {
     onColumnSizingChange: setColumnSizing,
   });
 
-  // Reset current page if it exceeds total pages
+  // Reset page on search change
   React.useEffect(() => {
-    console.log('page', page, 'totalPages', totalPages);
+    setPage(1);
+  }, [search]);
+
+  // Ensure current page is valid after data refetch
+  React.useEffect(() => {
     if (page > totalPages) {
       setPage(1);
     }
-  }, [totalPages, page]);
+  }, [page, totalPages]);
 
   const SearchAndAddUserControls = (
     <div className='flex flex-col items-start gap-2 pb-4 sm:flex-row sm:items-start sm:justify-between'>
@@ -139,7 +144,7 @@ const UsersTable = () => {
   );
 
   const FixedActionColumn = (
-    <div className='sticky left-0 border-r bg-white dark:bg-zinc-900'>
+    <div className='sticky left-0 z-10 border-r bg-white dark:bg-zinc-900'>
       <Table>
         <TableHeader>
           <TableRow className='h-14 align-middle'>
@@ -168,6 +173,8 @@ const UsersTable = () => {
   if (isPending) {
     return <UsersTableSkeleton />;
   }
+
+  console.log('data:', data);
 
   return (
     <Card className='mx-auto mt-4 w-full max-w-screen-xl gap-4 rounded-md border px-4 py-6 sm:px-6'>
@@ -249,15 +256,17 @@ const UsersTable = () => {
         </div>
       </div>
 
-      <Suspense
-        fallback={
-          <div className='text-muted-foreground text-center'>
-            Loading pagination...
-          </div>
-        }
-      >
-        <LazyPaginate page={page} totalPages={totalPages} setPage={setPage} />
-      </Suspense>
+      {totalPages > 1 && (
+        <Suspense
+          fallback={
+            <div className='text-muted-foreground text-center'>
+              Loading pagination...
+            </div>
+          }
+        >
+          <LazyPaginate page={page} totalPages={totalPages} setPage={setPage} />
+        </Suspense>
+      )}
     </Card>
   );
 };

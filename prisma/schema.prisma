@@ -42,7 +42,7 @@ model Post {
     authorId  String?
     tags      String[]  @default([])
     likes     Like[]
-    author    User?     @relation(fields: [authorId], references: [id])
+    author    User?     @relation(fields: [authorId], references: [id], onDelete: Cascade)
     flags     Flag[]
     comments  Comment[]
 
@@ -54,8 +54,8 @@ model Like {
     userId    String
     postId    String
     createdAt DateTime @default(now())
-    post      Post     @relation(fields: [postId], references: [id])
-    user      User     @relation(fields: [userId], references: [id])
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([userId, postId])
 }
@@ -97,9 +97,9 @@ model VerificationToken {
 model Flag {
     id        String   @id @default(cuid())
     reason    String
-    post      Post     @relation(fields: [postId], references: [id])
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
     postId    String
-    user      User     @relation(fields: [userId], references: [id])
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    String
     createdAt DateTime @default(now())
 
@@ -118,8 +118,8 @@ model Comment {
     postId    String
     authorId  String
 
-    post   Post @relation(fields: [postId], references: [id])
-    author User @relation(fields: [authorId], references: [id])
+    post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+    author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 enum UserRole {

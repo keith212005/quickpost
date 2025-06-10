@@ -4,6 +4,7 @@ import React, { startTransition, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 
@@ -160,7 +161,13 @@ const AddOrEditPostForm = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>{isEdit ? 'Edit Post' : 'Add Post'}</Button>
+        <Button
+          className='bg-primary hover:bg-primary/90 fixed right-6 bottom-6 z-50 h-14 w-14 rounded-full text-white shadow-lg'
+          size='icon'
+          aria-label={isEdit ? 'Edit Post' : 'Add Post'}
+        >
+          <Plus className='h-6 w-6' />
+        </Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-2xl'>
         <div className='mb-6 flex items-center space-x-2'>

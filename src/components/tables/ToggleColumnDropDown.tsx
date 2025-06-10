@@ -30,7 +30,7 @@ const ToggleColumnDropDown = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent className='border-border bg-background z-50 mt-2 w-40 rounded-md border p-2 shadow-md focus:outline-none'>
         <div className='p-2'>
-          <h4 className='mb-2 px-2 text-sm font-bold'>Toggle columns</h4>
+          <h4 className='mb-2 w-full text-center text-sm font-bold'>Columns</h4>
           <Separator />
           <div className='mt-2 flex flex-col gap-1'>
             {columns.map((col) => (

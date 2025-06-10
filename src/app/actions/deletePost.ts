@@ -13,11 +13,8 @@ export async function deletePost({
   postId: string;
 }): Promise<DeletePostResult> {
   const session = await auth();
-
-  console.log('Session:', session);
-
-  if (!session) {
-    return { success: false, error: 'Unauthorized' };
+  if (!session || !session.user?.id || !session.user?.role) {
+    return { success: false, error: 'Unauthorized or malformed session' };
   }
 
   const post = await prisma.post.findUnique({
@@ -25,40 +22,33 @@ export async function deletePost({
     select: { authorId: true },
   });
 
-  console.log('Post found:', post);
-
-  if (!post) {
+  if (!post || post.authorId === null) {
     return { success: false, error: 'Post not found' };
   }
 
-  const isAuthor = post.authorId === session.user.id;
-  const isAdmin = session.user.role === 'admin';
-
-  console.log('IsAuthor:', isAuthor, 'IsAdmin:', isAdmin);
+  const userId = session.user.id;
+  const userRole = session.user.role;
+  const isAuthor = post.authorId === userId;
+  const isAdmin = userRole === 'admin';
 
   if (!isAuthor && !isAdmin) {
     return { success: false, error: 'Unauthorized to delete this post' };
   }
 
   try {
-    await prisma.like.deleteMany({
-      where: { postId },
-    });
-
-    await prisma.flag.deleteMany({
-      where: { postId },
-    });
-
     await prisma.post.delete({
       where: { id: postId },
     });
 
-    console.log('Post deleted:', postId);
-
     return { success: true, postId };
   } catch (error) {
-    console.error('Failed to delete post:', error);
-    console.error('Delete error details:', error);
+    console.error('Failed to delete post:', {
+      error,
+      postId,
+      attemptedBy: userId,
+      isAdmin,
+    });
+
     return {
       success: false,
       error: 'An error occurred while deleting the post. Please try again.',

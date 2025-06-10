@@ -18,7 +18,7 @@ async function main() {
   console.log('Using DB:', process.env.DATABASE_URL);
 
   // 1. Create Users
-  const userCount = 10;
+  const userCount = 1000;
   const users = await Promise.all(
     Array.from({ length: userCount }).map(() =>
       prisma.user.create({
@@ -65,6 +65,11 @@ async function main() {
           name: user.name,
           email: user.email,
           image: user.image,
+        },
+        _count: {
+          likes: 0,
+          flags: 0,
+          comments: 0,
         },
       });
     }
