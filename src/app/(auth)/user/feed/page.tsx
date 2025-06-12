@@ -1,6 +1,5 @@
 import AddOrEditPostForm from '@/components/AddOrEditPostForm';
 import AllPostList from '@/components/AllPostsList';
-import FloatingAddPostButton from '@/components/FloatingAddPostButton';
 
 export default async function FeedPage() {
   return (
