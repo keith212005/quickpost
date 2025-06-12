@@ -10,6 +10,7 @@
     "test:prisma": "ts-node --project tsconfig.seed.json scripts/prisma-test.ts",
     "seed:prod": "dotenv -e .env.production -- npx prisma db seed",
     "resetdb:local": "dotenv -e .env.local -- ts-node --project tsconfig.seed.json scripts/reset-and-seed.ts",
+    "resetdb:prod": "dotenv -e .env.production -- ts-node --project tsconfig.seed.json scripts/reset-and-seed.ts",
     "studio:local": "npx dotenv -e .env.local -- npx prisma studio",
     "migrate:local": "dotenv -e .env.local -- npx prisma migrate dev"
   },
