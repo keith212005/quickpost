@@ -35,6 +35,13 @@ export async function getMyPosts(
           },
         },
         likes: true,
+        _count: {
+          select: {
+            likes: true,
+            flags: true,
+            comments: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
